@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { AnimateIn } from '@/components/ui/AnimateIn';
+import { PageLayout } from '@/components/ui/PageLayout';
 import { useCart } from '@/context/cart-context';
 
 interface Item {
@@ -26,7 +27,7 @@ const items: Item[] = [
         name: 'Margherita Pizza',
         image: '/images/pizza.jpg',
         category: 'food',
-        price: 12.99,
+        price: 16500,
         description: 'Fresh mozzarella, tomatoes, and basil on our signature crust',
         preparation: '20-25 minutes',
         rating: 4.8
@@ -36,7 +37,7 @@ const items: Item[] = [
         name: 'Gourmet Burger',
         image: '/images/burger.jpg',
         category: 'food',
-        price: 9.99,
+        price: 13000,
         description: 'Angus beef patty with premium toppings',
         preparation: '15-20 minutes',
         rating: 4.7
@@ -46,7 +47,7 @@ const items: Item[] = [
         name: 'Premium Sushi Set',
         image: '/images/sushi.jpg',
         category: 'food',
-        price: 24.99,
+        price: 32000,
         description: 'Assorted fresh sushi rolls (12 pieces)',
         preparation: '25-30 minutes',
         rating: 4.9
@@ -56,7 +57,7 @@ const items: Item[] = [
         name: 'Fresh Garden Salad',
         image: '/images/salad.jpg',
         category: 'food',
-        price: 8.99,
+        price: 11500,
         description: 'Mixed greens with seasonal vegetables',
         preparation: '10-15 minutes',
         rating: 4.5
@@ -66,7 +67,7 @@ const items: Item[] = [
         name: 'Spring Water (6-pack)',
         image: '/images/water.jpg',
         category: 'goods',
-        price: 4.99,
+        price: 6500,
         description: 'Natural spring water in recyclable bottles',
         rating: 4.6
     },
@@ -75,7 +76,7 @@ const items: Item[] = [
         name: 'Premium Snack Box',
         image: '/images/snacks.jpg',
         category: 'goods',
-        price: 15.99,
+        price: 20500,
         description: 'Assorted premium snacks and treats',
         rating: 4.7
     },
@@ -84,7 +85,7 @@ const items: Item[] = [
         name: 'Essential Toiletries Kit',
         image: '/images/toiletries.jpg',
         category: 'goods',
-        price: 19.99,
+        price: 25500,
         description: 'Basic travel-sized toiletries pack',
         rating: 4.4
     },
@@ -93,7 +94,7 @@ const items: Item[] = [
         name: 'Home Office Bundle',
         image: '/images/stationery.jpg',
         category: 'goods',
-        price: 29.99,
+        price: 38500,
         description: 'Essential stationery for your home office',
         rating: 4.8
     }
@@ -104,6 +105,15 @@ const ItemsPage = () => {
     const [selectedCategory, setSelectedCategory] = useState<'all' | 'food' | 'goods'>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
+    // Helper function to format prices in KRW
+    const formatPrice = (price: number) => {
+        return new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW',
+            maximumFractionDigits: 0
+        }).format(price);
+    };
+
     const filteredItems = items.filter(item => {
         const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
         const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -112,7 +122,7 @@ const ItemsPage = () => {
     });
 
     return (
-        <div className="min-h-screen bg-[#fff8f0] pb-20">
+        <PageLayout>
             <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
@@ -144,7 +154,7 @@ const ItemsPage = () => {
                             <Link href="/cart" className="relative">
                                 <Button variant="outline" className="relative">
                                     <span className="mr-2">🛒</span>
-                                    ${cartTotal.toFixed(2)}
+                                    {formatPrice(cartTotal)}
                                     {cartItems.length > 0 && (
                                         <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
                                             {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
@@ -160,7 +170,7 @@ const ItemsPage = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <AnimatePresence>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredItems.map((item, index) => (
@@ -185,7 +195,7 @@ const ItemsPage = () => {
                                                 {item.name}
                                             </h3>
                                             <span className="text-[#ff6600] font-bold">
-                                                ${item.price.toFixed(2)}
+                                                {formatPrice(item.price)}
                                             </span>
                                         </div>
                                         <p className="text-gray-600 text-sm mb-3">
@@ -230,7 +240,7 @@ const ItemsPage = () => {
                     </div>
                 )}
             </main>
-        </div>
+        </PageLayout>
     );
 };
 

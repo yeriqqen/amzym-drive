@@ -2,6 +2,15 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
+// Helper function to format prices in KRW
+export const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('ko-KR', {
+        style: 'currency',
+        currency: 'KRW',
+        maximumFractionDigits: 0
+    }).format(price);
+};
+
 interface CartItem {
     id: number;
     name: string;

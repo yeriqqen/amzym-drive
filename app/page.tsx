@@ -1,14 +1,38 @@
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
+import { PageLayout } from '@/components/ui/PageLayout';
+import { formatPrice } from '@/context/cart-context';
+
+const popularItems = [
+  {
+    name: 'Premium Sushi Set',
+    price: 32000,
+    rating: 4.9,
+    image: '/images/sushi.jpg'
+  },
+  {
+    name: 'Margherita Pizza',
+    price: 16500,
+    rating: 4.8,
+    image: '/images/pizza.jpg'
+  },
+  {
+    name: 'Gourmet Burger',
+    price: 13000,
+    rating: 4.7,
+    image: '/images/burger.jpg'
+  }
+];
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fff8f0] to-white">
+    <PageLayout className="bg-gradient-to-b from-[#fff8f0] to-white">
       {/* Hero Section */}
-      <div className="pt-24 pb-16 px-4 sm:pt-32 sm:pb-24">
+      <div className="pb-16 px-4 sm:pb-24">
         <div className="max-w-7xl mx-auto">
           <div className="text-center space-y-8">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -38,8 +62,38 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Features Section */}
+      {/* Popular Items Preview */}
       <div className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-[#2c3e50] text-center mb-8">Popular Items</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {popularItems.map((item) => (
+              <Card key={item.name} className="text-center p-6" hover>
+                <div className="relative h-48 mb-4">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                </div>
+                <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">{item.name}</h3>
+                <p className="text-[#ff6600] font-bold mb-2">{formatPrice(item.price)}</p>
+                <div className="flex justify-center text-yellow-500 mb-4">
+                  {'⭐'.repeat(Math.floor(item.rating))}
+                  <span className="ml-1 text-gray-600">({item.rating})</span>
+                </div>
+                <Link href="/items" className="block">
+                  <Button className="w-full">Order Now</Button>
+                </Link>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="py-16 bg-[#fff8f0]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="text-center p-8" hover>
@@ -64,54 +118,43 @@ export default function Home() {
       </div>
 
       {/* Services Section */}
-      <div className="py-16 bg-[#fff8f0]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="mb-8">
-            <div className="p-8">
-              <h3 className="text-2xl font-semibold text-[#2c3e50] text-center mb-6">Explore Our Services</h3>
-              <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-                <Input
-                  type="text"
-                  placeholder="Search for services"
-                  className="w-full md:w-2/3"
-                />
-                <Button>
-                  Search
-                </Button>
+      <div className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <Card className="p-8">
+            <h3 className="text-2xl font-semibold text-[#2c3e50] text-center mb-6">Why Choose Us?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-[#ff6600] text-2xl">✔️</span>
+                <div>
+                  <h4 className="font-semibold text-[#2c3e50]">Fast Delivery</h4>
+                  <p className="text-gray-600">Starting from {formatPrice(3000)}</p>
+                </div>
               </div>
-            </div>
-          </Card>
-
-          <Card>
-            <div className="p-8">
-              <h3 className="text-2xl font-semibold text-[#2c3e50] text-center">Why Choose Us?</h3>
-              <p className="text-xl text-[#2c3e50] text-center mb-6">
-                We offer the best services for students and professionals.
-              </p>
-              <hr className="border-t-2 border-[#ff6600]/10 mb-6" />
-
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg text-[#2c3e50]">
-                <li className="flex items-center gap-2">
-                  <span className="text-[#ff6600]">✔️</span>
-                  Easy Registration
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#ff6600]">✔️</span>
-                  Reliable Service
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#ff6600]">✔️</span>
-                  24/7 Support
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-[#ff6600]">✔️</span>
-                  Global Community
-                </li>
-              </ul>
+              <div className="flex items-center gap-4">
+                <span className="text-[#ff6600] text-2xl">✔️</span>
+                <div>
+                  <h4 className="font-semibold text-[#2c3e50]">24/7 Support</h4>
+                  <p className="text-gray-600">Always here to help</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-[#ff6600] text-2xl">✔️</span>
+                <div>
+                  <h4 className="font-semibold text-[#2c3e50]">Secure Payments</h4>
+                  <p className="text-gray-600">100% secure transactions</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-[#ff6600] text-2xl">✔️</span>
+                <div>
+                  <h4 className="font-semibold text-[#2c3e50]">Live Tracking</h4>
+                  <p className="text-gray-600">Real-time order tracking</p>
+                </div>
+              </div>
             </div>
           </Card>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
