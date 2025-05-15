@@ -1,92 +1,237 @@
 'use client';
-import type { NextPage } from 'next';
-import Head from 'next/head';
-import Link from 'next/link';
+
 import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import Button from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { AnimateIn } from '@/components/ui/AnimateIn';
+import { useCart } from '@/context/cart-context';
 
 interface Item {
     id: number;
     name: string;
     image: string;
     category: 'food' | 'goods';
+    price: number;
+    description: string;
+    preparation?: string;
+    rating: number;
 }
 
-const Items: NextPage = () => {
-    const [cart, setCart] = useState<number[]>([]);
+const items: Item[] = [
+    {
+        id: 1,
+        name: 'Margherita Pizza',
+        image: '/images/pizza.jpg',
+        category: 'food',
+        price: 12.99,
+        description: 'Fresh mozzarella, tomatoes, and basil on our signature crust',
+        preparation: '20-25 minutes',
+        rating: 4.8
+    },
+    {
+        id: 2,
+        name: 'Gourmet Burger',
+        image: '/images/burger.jpg',
+        category: 'food',
+        price: 9.99,
+        description: 'Angus beef patty with premium toppings',
+        preparation: '15-20 minutes',
+        rating: 4.7
+    },
+    {
+        id: 3,
+        name: 'Premium Sushi Set',
+        image: '/images/sushi.jpg',
+        category: 'food',
+        price: 24.99,
+        description: 'Assorted fresh sushi rolls (12 pieces)',
+        preparation: '25-30 minutes',
+        rating: 4.9
+    },
+    {
+        id: 4,
+        name: 'Fresh Garden Salad',
+        image: '/images/salad.jpg',
+        category: 'food',
+        price: 8.99,
+        description: 'Mixed greens with seasonal vegetables',
+        preparation: '10-15 minutes',
+        rating: 4.5
+    },
+    {
+        id: 5,
+        name: 'Spring Water (6-pack)',
+        image: '/images/water.jpg',
+        category: 'goods',
+        price: 4.99,
+        description: 'Natural spring water in recyclable bottles',
+        rating: 4.6
+    },
+    {
+        id: 6,
+        name: 'Premium Snack Box',
+        image: '/images/snacks.jpg',
+        category: 'goods',
+        price: 15.99,
+        description: 'Assorted premium snacks and treats',
+        rating: 4.7
+    },
+    {
+        id: 7,
+        name: 'Essential Toiletries Kit',
+        image: '/images/toiletries.jpg',
+        category: 'goods',
+        price: 19.99,
+        description: 'Basic travel-sized toiletries pack',
+        rating: 4.4
+    },
+    {
+        id: 8,
+        name: 'Home Office Bundle',
+        image: '/images/stationery.jpg',
+        category: 'goods',
+        price: 29.99,
+        description: 'Essential stationery for your home office',
+        rating: 4.8
+    }
+];
 
-    const items: Item[] = [
-        { id: 1, name: 'Pizza', image: '/images/pizza.jpg', category: 'food' },
-        { id: 2, name: 'Burger', image: '/images/burger.jpg', category: 'food' },
-        { id: 3, name: 'Sushi', image: '/images/sushi.jpg', category: 'food' },
-        { id: 4, name: 'Salad', image: '/images/salad.jpg', category: 'food' },
-        { id: 5, name: 'Bottled Water', image: '/images/water.jpg', category: 'goods' },
-        { id: 6, name: 'Snacks', image: '/images/snacks.jpg', category: 'goods' },
-        { id: 7, name: 'Toiletries', image: '/images/toiletries.jpg', category: 'goods' },
-        { id: 8, name: 'Stationery', image: '/images/stationery.jpg', category: 'goods' },
-    ];
+const ItemsPage = () => {
+    const { items: cartItems, addItem, total: cartTotal } = useCart();
+    const [selectedCategory, setSelectedCategory] = useState<'all' | 'food' | 'goods'>('all');
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const addToCart = (itemId: number) => {
-        setCart([...cart, itemId]);
-    };
+    const filteredItems = items.filter(item => {
+        const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            item.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
 
     return (
-        <div className="min-h-screen bg-[#fff8f0]">
-            <Head>
-                <title>Food & Goods Delivery - Gallery</title>
-                <meta name="description" content="Choose your favorite items" />
-                <link rel="icon" href="/favicon.ico" />
-            </Head>
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ff9900] to-[#ff3300]">
-                            Choose Your Favorite Items
-                        </h1>
-                        <p className="text-xl text-[#2c3e50] mt-2">
-                            Select your delicious food and daily goods easily!
-                        </p>
-                    </div>
-                    <Link href="/map">
-                        <button
-                            className="px-5 py-3 bg-[#007bff] hover:bg-[#0056b3] text-white font-bold rounded-lg transform transition-transform hover:scale-105 flex items-center shadow-md"
-                            disabled={cart.length === 0}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            Checkout ({cart.length})
-                        </button>
-                    </Link>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {items.map((item) => (
-                        <div
-                            key={item.id}
-                            className="bg-[#fff8f0] border-[3px] border-[#ff6600] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
-                        >
-                            <div className="h-48 w-full bg-gray-300 relative">
-                                {/* In production, use actual images */}
-                                <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-                                    {item.name} Image
-                                </div>
-                            </div>
-                            <div className="p-4">
-                                <h4 className="text-xl font-bold text-[#2c3e50] mb-2">{item.name}</h4>
-                                <button
-                                    onClick={() => addToCart(item.id)}
-                                    className="w-full px-4 py-2 bg-[#007bff] hover:bg-[#0056b3] text-white font-bold rounded-lg transform transition-transform hover:scale-105 shadow"
-                                >
-                                    Add to Cart
-                                </button>
+        <div className="min-h-screen bg-[#fff8f0] pb-20">
+            <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-8">
+                            <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ff9900] to-[#ff3300]">
+                                Browse Items
+                            </h1>
+                            <div className="flex space-x-2">
+                                {(['all', 'food', 'goods'] as const).map(category => (
+                                    <Button
+                                        key={category}
+                                        variant={selectedCategory === category ? 'primary' : 'outline'}
+                                        onClick={() => setSelectedCategory(category)}
+                                        className="capitalize"
+                                    >
+                                        {category}
+                                    </Button>
+                                ))}
                             </div>
                         </div>
-                    ))}
+                        <div className="flex items-center space-x-4">
+                            <input
+                                type="search"
+                                placeholder="Search items..."
+                                className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            <Link href="/cart" className="relative">
+                                <Button variant="outline" className="relative">
+                                    <span className="mr-2">🛒</span>
+                                    ${cartTotal.toFixed(2)}
+                                    {cartItems.length > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                                            {cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+                                        </span>
+                                    )}
+                                </Button>
+                            </Link>
+                            <Link href="/map">
+                                <Button>Track Orders</Button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </header>
+
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+                <AnimatePresence>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredItems.map((item, index) => (
+                            <AnimateIn key={item.id} delay={index * 0.1}>
+                                <Card className="overflow-hidden group">
+                                    <div className="relative h-48">
+                                        <Image
+                                            src={item.image}
+                                            alt={item.name}
+                                            fill
+                                            className="object-cover transform group-hover:scale-105 transition-transform duration-300"
+                                        />
+                                        {item.category === 'food' && item.preparation && (
+                                            <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded-full text-sm">
+                                                ⏱️ {item.preparation}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="p-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-semibold text-lg text-[#2c3e50]">
+                                                {item.name}
+                                            </h3>
+                                            <span className="text-[#ff6600] font-bold">
+                                                ${item.price.toFixed(2)}
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-600 text-sm mb-3">
+                                            {item.description}
+                                        </p>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center text-sm text-yellow-500">
+                                                {'⭐'.repeat(Math.floor(item.rating))}
+                                                <span className="ml-1 text-gray-600">
+                                                    ({item.rating.toFixed(1)})
+                                                </span>
+                                            </div>
+                                            <Button
+                                                onClick={() => addItem({
+                                                    id: item.id,
+                                                    name: item.name,
+                                                    image: item.image,
+                                                    category: item.category,
+                                                    price: item.price,
+                                                    preparation: item.preparation
+                                                })}
+                                                className="group-hover:bg-[#ff6600] group-hover:text-white"
+                                            >
+                                                Add to Cart
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </AnimateIn>
+                        ))}
+                    </div>
+                </AnimatePresence>
+
+                {filteredItems.length === 0 && (
+                    <div className="text-center py-20">
+                        <h3 className="text-2xl font-semibold text-gray-600">
+                            No items found
+                        </h3>
+                        <p className="text-gray-500 mt-2">
+                            Try adjusting your search or filter criteria
+                        </p>
+                    </div>
+                )}
+            </main>
         </div>
     );
 };
 
-export default Items;
+export default ItemsPage;
