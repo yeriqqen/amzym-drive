@@ -12,19 +12,25 @@ const popularItems = [
     name: 'Premium Sushi Set',
     price: 32000,
     rating: 4.9,
-    image: '/images/sushi.jpg'
+    image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80'
   },
   {
     name: 'Margherita Pizza',
     price: 16500,
     rating: 4.8,
-    image: '/images/pizza.jpg'
+    image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80'
   },
   {
     name: 'Gourmet Burger',
     price: 13000,
     rating: 4.7,
-    image: '/images/burger.jpg'
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80'
+  },
+  {
+    name: 'Premium Snack Box',
+    price: 20500,
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1582169296194-d4d644c48081?w=800&q=80'
   }
 ];
 
@@ -66,7 +72,7 @@ export default function Home() {
       <div className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-[#2c3e50] text-center mb-8">Popular Items</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {popularItems.map((item) => (
               <Card key={item.name} className="text-center p-6" hover>
                 <div className="relative h-48 mb-4">

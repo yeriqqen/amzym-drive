@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Changed from 'next/router'
+import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
-// Import Leaflet components dynamically to avoid SSR issues
-const Map = dynamic(
-    () => import('../../components/Map'), // Adjusted path if needed
+// Import GoogleMap component dynamically to avoid SSR issues
+const GoogleMap = dynamic(
+    () => import('@/components/GoogleMap'),
     {
         ssr: false,
         loading: () => <div className="h-80 w-full bg-gray-200 flex items-center justify-center">Loading map...</div>
@@ -42,7 +42,7 @@ export default function MapPage() {
                     </p>
                 </div>
                 <div className="w-full h-96 border-4 border-[#ff6600] rounded-lg overflow-hidden shadow-md mb-8">
-                    <Map onLocationSelect={handleLocationSelect} />
+                    <GoogleMap onLocationSelect={handleLocationSelect} />
                 </div>
                 <div className="text-center text-xl text-[#2c3e50] mb-6">
                     Selected Location: <span className="font-bold">

@@ -97,8 +97,8 @@ const ClientCartProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = items.length > 0 ? 2.99 : 0;
-    const tax = subtotal * 0.1; // 10% tax
+    const deliveryFee = items.length > 0 ? 3000 : 0; // 3,000 KRW delivery fee
+    const tax = Math.floor(subtotal * 0.1); // 10% tax, rounded down to nearest KRW
     const total = subtotal + deliveryFee + tax;
 
     const value: CartContextType = {

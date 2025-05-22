@@ -25,7 +25,7 @@ const items: Item[] = [
     {
         id: 1,
         name: 'Margherita Pizza',
-        image: '/images/pizza.jpg',
+        image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80',
         category: 'food',
         price: 16500,
         description: 'Fresh mozzarella, tomatoes, and basil on our signature crust',
@@ -35,7 +35,7 @@ const items: Item[] = [
     {
         id: 2,
         name: 'Gourmet Burger',
-        image: '/images/burger.jpg',
+        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80',
         category: 'food',
         price: 13000,
         description: 'Angus beef patty with premium toppings',
@@ -45,7 +45,7 @@ const items: Item[] = [
     {
         id: 3,
         name: 'Premium Sushi Set',
-        image: '/images/sushi.jpg',
+        image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80',
         category: 'food',
         price: 32000,
         description: 'Assorted fresh sushi rolls (12 pieces)',
@@ -55,7 +55,7 @@ const items: Item[] = [
     {
         id: 4,
         name: 'Fresh Garden Salad',
-        image: '/images/salad.jpg',
+        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80',
         category: 'food',
         price: 11500,
         description: 'Mixed greens with seasonal vegetables',
@@ -65,7 +65,7 @@ const items: Item[] = [
     {
         id: 5,
         name: 'Spring Water (6-pack)',
-        image: '/images/water.jpg',
+        image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80',
         category: 'goods',
         price: 6500,
         description: 'Natural spring water in recyclable bottles',
@@ -74,7 +74,7 @@ const items: Item[] = [
     {
         id: 6,
         name: 'Premium Snack Box',
-        image: '/images/snacks.jpg',
+        image: 'https://images.unsplash.com/photo-1582169296194-d4d644c48081?w=800&q=80',
         category: 'goods',
         price: 20500,
         description: 'Assorted premium snacks and treats',
@@ -83,7 +83,7 @@ const items: Item[] = [
     {
         id: 7,
         name: 'Essential Toiletries Kit',
-        image: '/images/toiletries.jpg',
+        image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=800&q=80',
         category: 'goods',
         price: 25500,
         description: 'Basic travel-sized toiletries pack',
@@ -92,7 +92,7 @@ const items: Item[] = [
     {
         id: 8,
         name: 'Home Office Bundle',
-        image: '/images/stationery.jpg',
+        image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&q=80',
         category: 'goods',
         price: 38500,
         description: 'Essential stationery for your home office',
