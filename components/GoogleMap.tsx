@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 declare global {
     interface Window {
         google: any;
-        initMap: () => void;
+        initMap?: () => void;  // Make initMap optional to fix the delete operator error
     }
 }
 
@@ -77,7 +77,7 @@ export default function GoogleMap({ onLocationSelect }: GoogleMapProps) {
 
         // Load Google Maps script
         const script = document.createElement('script');
-        script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDVQAOM-KGoiz4BNY83KuUKfyaEe1h3Wok&callback=initMap";
+        script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyByrCNKe9kWY2M9EqIWwRSP3m804OSD8lA&callback=initMap";
         script.async = true;
         script.defer = true;
         document.head.appendChild(script);

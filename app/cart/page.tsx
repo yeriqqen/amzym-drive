@@ -97,9 +97,11 @@ const CartPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <Button className="w-full">
-                                Proceed to Checkout
-                            </Button>
+                            <Link href="/map">
+                                <Button className="w-full">
+                                    Proceed to Checkout
+                                </Button>
+                            </Link>
                         </Card>
                     </div>
                 </div>

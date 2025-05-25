@@ -32,7 +32,7 @@ export default function MapPage() {
 
     return (
         <div className="min-h-screen bg-[#fff8f0]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="pt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ff9900] to-[#ff3300]">
                         Choose Your Delivery Location
