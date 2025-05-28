@@ -2,15 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 
+interface GoogleMapProps {
+    onLocationSelect: (lat: number, lng: number) => void;
+}
+
 declare global {
     interface Window {
         google: any;
-        initMap?: () => void;  // Make initMap optional to fix the delete operator error
     }
-}
-
-interface GoogleMapProps {
-    onLocationSelect: (lat: number, lng: number) => void;
 }
 
 export default function GoogleMap({ onLocationSelect }: GoogleMapProps) {
@@ -18,81 +17,76 @@ export default function GoogleMap({ onLocationSelect }: GoogleMapProps) {
     const markerRef = useRef<any>(null);
 
     useEffect(() => {
-        // Define the initMap function globally
-        window.initMap = () => {
-            if (!mapRef.current) return;
+        // Check if Google Maps API is loaded
+        if (!window.google?.maps || !mapRef.current) return;
 
-            // Default center (Seoul)
-            const defaultPosition = { lat: 37.5665, lng: 126.9780 };
+        // Default center (Seoul)
+        const defaultPosition = { lat: 37.5665, lng: 126.9780 };
 
-            const map = new window.google.maps.Map(mapRef.current, {
-                center: defaultPosition,
-                zoom: 13,
-                styles: [
-                    {
-                        featureType: "poi",
-                        elementType: "labels",
-                        stylers: [{ visibility: "off" }]
-                    }
-                ]
-            });
-
-            // Add click event listener
-            map.addListener("click", (event: any) => {
-                const lat = event.latLng.lat();
-                const lng = event.latLng.lng();
-
-                // Remove existing marker if any
-                if (markerRef.current) {
-                    markerRef.current.setMap(null);
+        const map = new window.google.maps.Map(mapRef.current, {
+            center: defaultPosition,
+            zoom: 13,
+            styles: [
+                {
+                    featureType: "poi",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }]
                 }
+            ]
+        });
 
-                // Create new marker
-                markerRef.current = new window.google.maps.Marker({
-                    position: { lat, lng },
-                    map: map,
-                    animation: window.google.maps.Animation.DROP
-                });
+        // Add click event listener
+        map.addListener("click", (event: any) => {
+            if (!event.latLng) return;
 
-                // Call the callback with the selected location
-                onLocationSelect(lat, lng);
+            const lat = event.latLng.lat();
+            const lng = event.latLng.lng();
+
+            // Remove existing marker if any
+            if (markerRef.current) {
+                markerRef.current.setMap(null);
+            }
+
+            // Create new marker
+            markerRef.current = new window.google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                animation: window.google.maps.Animation.DROP
             });
 
-            // Get user's current location
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        const currentPosition = { lat, lng };
+            // Call the callback with the selected location
+            onLocationSelect(lat, lng);
+        });
 
-                        map.setCenter(currentPosition);
-                    },
-                    (error) => {
-                        console.error('Error getting location:', error);
-                    }
-                );
-            }
-        };
+        // Get user's current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const currentPosition = { lat, lng };
 
-        // Load Google Maps script
-        const script = document.createElement('script');
-        script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyByrCNKe9kWY2M9EqIWwRSP3m804OSD8lA&callback=initMap";
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
+                    map.setCenter(currentPosition);
+                },
+                (error) => {
+                    console.error('Error getting location:', error);
+                }
+            );
+        }
 
         return () => {
-            // Cleanup
-            document.head.removeChild(script);
-            delete window.initMap;
+            // Cleanup marker on unmount
+            if (markerRef.current) {
+                markerRef.current.setMap(null);
+            }
         };
     }, [onLocationSelect]);
 
     return (
         <div
             ref={mapRef}
-            className="w-full h-full"
+            style={{ width: '100%', height: '400px' }}
+            className="rounded-lg shadow-lg"
         />
     );
-} 
+}
