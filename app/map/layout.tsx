@@ -1,9 +1,6 @@
-import type { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-    title: 'Select Delivery Location',
-    description: 'Choose your delivery location',
-};
+import Script from 'next/script';
 
 export default function MapLayout({
     children,
@@ -12,7 +9,13 @@ export default function MapLayout({
 }) {
     return (
         <>
-            {children}
+            <Script
+                src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+                strategy="beforeInteractive"
+            />
+            <main className="flex-1">
+                {children}
+            </main>
         </>
     );
 }

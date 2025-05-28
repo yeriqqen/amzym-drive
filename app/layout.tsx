@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { CartProvider } from "@/context/cart-context";
 import { AuthProvider } from "@/context/auth-context";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 

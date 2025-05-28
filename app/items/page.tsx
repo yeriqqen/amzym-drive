@@ -123,7 +123,7 @@ const ItemsPage = () => {
 
     return (
         <PageLayout>
-            <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 shadow-sm">
+            <header className="fixed top-16 left-0 right-0 bg-white/80 backdrop-blur-md z-40 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-8">
@@ -170,7 +170,7 @@ const ItemsPage = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-36">
                 <AnimatePresence>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredItems.map((item, index) => (
