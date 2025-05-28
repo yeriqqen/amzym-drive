@@ -1,0 +1,42 @@
+
+
+> backend@0.0.1 build
+> nest build
+
+[1G[0K[96msrc/cache/cache.module.ts[0m:[93m3[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module 'cache-manager-redis-store' or its corresponding type declarations.
+
+[7m3[0m import { redisStore } from 'cache-manager-redis-store';
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/cache/cache.service.ts[0m:[93m10[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'Awaited<T> | null' is not assignable to type 'T | undefined'.
+  Type 'null' is not assignable to type 'T | undefined'.
+
+[7m10[0m     return await this.cacheManager.get<T>(key);
+[7m  [0m [91m    ~~~~~~[0m
+[96msrc/cache/cache.service.ts[0m:[93m22[0m:[93m29[0m - [91merror[0m[90m TS2551: [0mProperty 'reset' does not exist on type 'Cache'. Did you mean 'set'?
+
+[7m22[0m     await this.cacheManager.reset();
+[7m  [0m [91m                            ~~~~~[0m
+
+  [96m../../node_modules/cache-manager/dist/index.d.ts[0m:[93m54[0m:[93m5[0m
+    [7m54[0m     set: <T>(key: string, value: T, ttl?: number) => Promise<T>;
+    [7m  [0m [96m    ~~~[0m
+    'set' is declared here.
+[96msrc/orders/orders.service.ts[0m:[93m4[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"@prisma/client"' has no exported member 'Order'.
+
+[7m4[0m import { Order } from '@prisma/client';
+[7m [0m [91m         ~~~~~[0m
+[96msrc/users/users.service.ts[0m:[93m4[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"@prisma/client"' has no exported member 'User'.
+
+[7m4[0m import { User } from '@prisma/client';
+[7m [0m [91m         ~~~~[0m
+
+Found 5 error(s).
+
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m Lifecycle script `build` failed with error:
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mcode[39m [33m1[39m
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mpath[39m /Users/yeriqqen/Documents/website/apps/backend
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mworkspace[39m backend@0.0.1
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mlocation[39m /Users/yeriqqen/Documents/website/apps/backend
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m command failed
+[1G[0K⠙[1G[0K[1mnpm[22m [31merror[39m [94mcommand[39m sh -c nest build
+[1G[0K⠙[1G[0K

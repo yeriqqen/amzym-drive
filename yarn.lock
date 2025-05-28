@@ -677,6 +677,13 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@keyv/serialize@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.npmjs.org/@keyv/serialize/-/serialize-1.0.3.tgz"
+  integrity sha512-qnEovoOp5Np2JDGonIDL6Ayihw0RhnRh6vxPuHo4RDn1UOzwEo4AeIfpL6UGIrsceWrCMiVPgwRjbHu4vYFc3g==
+  dependencies:
+    buffer "^6.0.3"
+
 "@ljharb/through@^2.3.12":
   version "2.3.14"
   resolved "https://registry.npmjs.org/@ljharb/through/-/through-2.3.14.tgz"
@@ -749,6 +756,11 @@
     "@napi-rs/nice-win32-arm64-msvc" "1.0.1"
     "@napi-rs/nice-win32-ia32-msvc" "1.0.1"
     "@napi-rs/nice-win32-x64-msvc" "1.0.1"
+
+"@nestjs/cache-manager@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.npmjs.org/@nestjs/cache-manager/-/cache-manager-3.0.1.tgz"
+  integrity sha512-4UxTnR0fsmKL5YDalU2eLFVnL+OBebWUpX+hEduKGncrVKH4PPNoiRn1kXyOCjmzb0UvWgqubpssNouc8e0MCw==
 
 "@nestjs/cli@^10.3.2":
   version "10.4.9"
@@ -864,6 +876,11 @@
   integrity sha512-oTeGjnh1qeSZMFqze1Rz5lEtAOBRDApulWDoLYSyzh+8/jFflhCYAGeOHncItkGq9wBRe1R1Ct2GyRFdTmpcjg==
   dependencies:
     tslib "2.8.1"
+
+"@nestjs/throttler@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.npmjs.org/@nestjs/throttler/-/throttler-6.4.0.tgz"
+  integrity sha512-osL67i0PUuwU5nqSuJjtUJZMkxAnYB4VldgYUMGzvYRJDCqGRFMWbsbzm/CkUtPLRL30I8T74Xgt/OQxnYokiA==
 
 "@next/env@14.1.0":
   version "14.1.0"
@@ -989,6 +1006,33 @@
   version "3.0.0"
   resolved "https://registry.npmjs.org/@react-leaflet/core/-/core-3.0.0.tgz"
   integrity sha512-3EWmekh4Nz+pGcr+xjf0KNyYfC3U2JjnkWsh0zcqaexYqmmB5ZhH37kz41JXGmKzpaMZCnPofBBm64i+YrEvGQ==
+
+"@redis/bloom@5.1.1":
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/@redis/bloom/-/bloom-5.1.1.tgz"
+  integrity sha512-PnMcvpL7O2DHtnSL5JtyNmraNrdHuJXi3u2isGTUuPgkbAuWQKfZdknq471ySILL+qKtLfVJqzgDFMjYmZzK6Q==
+
+"@redis/client@5.1.1":
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/@redis/client/-/client-5.1.1.tgz"
+  integrity sha512-vojbBqUdbkD+ylCy3+ZDXLzSmgiYH9pLrv87kF+nDgsRaHKrVVxPV9B4u6EfWRx7XGvQGZqsXVkKFhsEOsG3LA==
+  dependencies:
+    cluster-key-slot "1.1.2"
+
+"@redis/json@5.1.1":
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/@redis/json/-/json-5.1.1.tgz"
+  integrity sha512-A5M0dcgxGKq+oE6spIPBcGLDBiwoSPTs2wesVb4x30rXfG6rPtqt1Z7fCMtvTL2kHUNRKgZ78zhD+0+MENZt7g==
+
+"@redis/search@5.1.1":
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/@redis/search/-/search-5.1.1.tgz"
+  integrity sha512-bChudQmcqfYUxEGMeXMkljXtwse4hzqcqRwbZDwRyYe+EEeW/lXVl3w/mS2tHnAb2yqGnfDghid8iHEtVNqjww==
+
+"@redis/time-series@5.1.1":
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/@redis/time-series/-/time-series-5.1.1.tgz"
+  integrity sha512-HPjZLfcZxh5mBLqRgx7KCZG6JXxGnb7yJqo9qZ/KMTWK/k3SWyH47DHJbYbRNzKOEkbK/l/5kikDTm79uJuCbg==
 
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
@@ -1260,6 +1304,13 @@
   integrity sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==
   dependencies:
     "@types/node" "*"
+
+"@types/helmet@^0.0.48":
+  version "0.0.48"
+  resolved "https://registry.npmjs.org/@types/helmet/-/helmet-0.0.48.tgz"
+  integrity sha512-C7MpnvSDrunS1q2Oy1VWCY7CDWHozqSnM8P4tFeRTuzwqni+PYOjEredwcqWG+kLpYcgLsgcY3orHB54gbx2Jw==
+  dependencies:
+    "@types/express" "*"
 
 "@types/http-cache-semantics@*":
   version "4.0.4"
@@ -2207,6 +2258,7 @@ babel-preset-jest@^29.6.3:
   version "0.0.1"
   resolved "file:apps/backend"
   dependencies:
+    "@nestjs/cache-manager" "^3.0.1"
     "@nestjs/common" "^10.3.3"
     "@nestjs/config" "^3.2.0"
     "@nestjs/core" "^10.3.3"
@@ -2214,15 +2266,18 @@ babel-preset-jest@^29.6.3:
     "@nestjs/passport" "^10.0.3"
     "@nestjs/platform-express" "^10.3.3"
     "@nestjs/swagger" "^7.3.0"
+    "@nestjs/throttler" "^6.4.0"
     "@prisma/client" "^5.10.2"
     "@types/passport-jwt" "^4.0.1"
     "@types/passport-local" "^1.0.38"
     bcrypt "^5.1.1"
+    cache-manager "^6.4.3"
     class-transformer "^0.5.1"
     class-validator "^0.14.1"
     passport "^0.7.0"
     passport-jwt "^4.0.1"
     passport-local "^1.0.0"
+    redis "^5.1.1"
     reflect-metadata "^0.2.1"
     rxjs "^7.8.1"
 
@@ -2389,6 +2444,13 @@ bytes@3.1.2:
   version "3.1.2"
   resolved "https://registry.npmjs.org/bytes/-/bytes-3.1.2.tgz"
   integrity sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==
+
+cache-manager@^6.4.3:
+  version "6.4.3"
+  resolved "https://registry.npmjs.org/cache-manager/-/cache-manager-6.4.3.tgz"
+  integrity sha512-VV5eq/QQ5rIVix7/aICO4JyvSeEv9eIQuKL5iFwgM2BrcYoE0A/D1mNsAHJAsB0WEbNdBlKkn6Tjz6fKzh/cKQ==
+  dependencies:
+    keyv "^5.3.3"
 
 cacheable-lookup@^5.0.3:
   version "5.0.4"
@@ -2587,6 +2649,11 @@ clone@^1.0.2:
   version "1.0.4"
   resolved "https://registry.npmjs.org/clone/-/clone-1.0.4.tgz"
   integrity sha512-JQHZ2QMW6l3aH/j6xCqQThY/9OH4D/9ls34cgkUBiEeocRTU04tHfKPBsUK1PqZCUQM7GiA0IIXJSuXHI64Kbg==
+
+cluster-key-slot@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.npmjs.org/cluster-key-slot/-/cluster-key-slot-1.1.2.tgz"
+  integrity sha512-RMr0FhtfXemyinomL4hrWcYJxmX6deFdCxpJzhDttxgO1+bcCnkk+9drydLVDmAMG7NE6aN/fl4F7ucU/90gAA==
 
 co@^4.6.0:
   version "4.6.0"
@@ -4205,6 +4272,11 @@ hasown@^2.0.0, hasown@^2.0.2:
   dependencies:
     function-bind "^1.1.2"
 
+helmet@^8.1.0:
+  version "8.1.0"
+  resolved "https://registry.npmjs.org/helmet/-/helmet-8.1.0.tgz"
+  integrity sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==
+
 html-escaper@^2.0.0:
   version "2.0.2"
   resolved "https://registry.npmjs.org/html-escaper/-/html-escaper-2.0.2.tgz"
@@ -5225,6 +5297,13 @@ keyv@^4.0.0, keyv@^4.5.3:
   integrity sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==
   dependencies:
     json-buffer "3.0.1"
+
+keyv@^5.3.3:
+  version "5.3.3"
+  resolved "https://registry.npmjs.org/keyv/-/keyv-5.3.3.tgz"
+  integrity sha512-Rwu4+nXI9fqcxiEHtbkvoes2X+QfkTRo1TMkPfwzipGsJlJO/z69vqB4FNl9xJ3xCpAcbkvmEabZfPzrwN3+gQ==
+  dependencies:
+    "@keyv/serialize" "^1.0.3"
 
 kleur@^3.0.3:
   version "3.0.3"
@@ -6504,6 +6583,17 @@ readdirp@~3.6.0:
   integrity sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==
   dependencies:
     picomatch "^2.2.1"
+
+redis@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/redis/-/redis-5.1.1.tgz"
+  integrity sha512-4t6n2Q9aFqpQnqBR/g84zsXW+U0hdSzYymqoGGZk44p+kuzzHbgukjOAca+PlQ563TbXcgv1njerllYWjAWw4g==
+  dependencies:
+    "@redis/bloom" "5.1.1"
+    "@redis/client" "5.1.1"
+    "@redis/json" "5.1.1"
+    "@redis/search" "5.1.1"
+    "@redis/time-series" "5.1.1"
 
 reflect-metadata@^0.2.1:
   version "0.2.2"

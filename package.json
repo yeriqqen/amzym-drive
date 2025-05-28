@@ -1,6 +1,6 @@
 {
-  "name": "amzymdrive",
-  "version": "0.1.0",
+  "name": "food-delivery-platform",
+  "version": "1.0.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -8,10 +8,33 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:backend": "turbo run dev --filter=backend",
+    "dev:frontend": "turbo run dev --filter=client",
     "build": "turbo run build",
+    "build:backend": "turbo run build --filter=backend",
+    "build:frontend": "turbo run build --filter=client",
     "start": "turbo run start",
+    "start:prod": "turbo run start:prod",
+    "test": "turbo run test",
+    "test:cov": "turbo run test:cov",
+    "test:e2e": "turbo run test:e2e",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "lint:fix": "turbo run lint:fix",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "npx prisma generate",
+    "db:migrate": "npx prisma migrate dev",
+    "db:migrate:prod": "npx prisma migrate deploy",
+    "db:seed": "npx prisma db seed",
+    "db:studio": "npx prisma studio",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "deploy:prod": "./deploy.sh",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "reset": "npm run clean && npm install"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",

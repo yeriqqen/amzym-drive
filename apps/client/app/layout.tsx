@@ -32,6 +32,12 @@ export default function RootLayout({
             </div>
           </CartProvider>
         </AuthProvider>
+
+        {/* Google Maps API Script */}
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyD-PLACEHOLDER-KEY'}&libraries=places,geometry`}
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );
