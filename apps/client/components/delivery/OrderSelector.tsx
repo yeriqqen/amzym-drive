@@ -1,169 +1,118 @@
 import React from 'react';
-import { Order, OrderItem } from '../../types/order';
+import { Order } from '../../types/order';
 
 interface OrderSelectorProps {
     orders: Order[];
-    selectedOrderId: number | null;
-    onOrderSelect: (orderId: number) => void;
+    onOrderSelect: (order: Order) => void;
     className?: string;
 }
 
 export const OrderSelector: React.FC<OrderSelectorProps> = ({
     orders,
-    selectedOrderId,
     onOrderSelect,
     className = ''
 }) => {
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('ko-KR', {
-            style: 'currency',
-            currency: 'KRW'
-        }).format(price);
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'PENDING':
-                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'CONFIRMED':
-                return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'PREPARING':
-                return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'OUT_FOR_DELIVERY':
-                return 'bg-purple-100 text-purple-800 border-purple-200';
-            case 'DELIVERED':
-                return 'bg-green-100 text-green-800 border-green-200';
-            case 'CANCELLED':
-                return 'bg-red-100 text-red-800 border-red-200';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-    };
-
-    const getStatusDisplay = (status: string) => {
-        switch (status) {
-            case 'OUT_FOR_DELIVERY':
-                return 'Out for Delivery';
-            case 'PENDING':
-                return 'Pending';
-            case 'CONFIRMED':
-                return 'Confirmed';
-            case 'PREPARING':
-                return 'Preparing';
-            case 'DELIVERED':
-                return 'Delivered';
-            case 'CANCELLED':
-                return 'Cancelled';
-            default:
-                return status;
-        }
-    };
-
-    if (orders.length === 0) {
+    if (!orders || orders.length === 0) {
         return (
-            <div className={`bg-white rounded-lg shadow-md p-6 text-center ${className}`}>
-                <div className="text-6xl mb-4">📦</div>
-                <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">No Active Orders</h3>
-                <p className="text-gray-600 mb-4">You don't have any orders to track right now.</p>
-                <a
-                    href="/items"
-                    className="inline-block bg-[#007bff] hover:bg-[#0056b3] text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-200"
-                >
-                    Start Shopping
-                </a>
+            <div className={`bg-white rounded-lg shadow-md p-8 text-center ${className}`}>
+                <div className="text-gray-500">
+                    <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">No Orders Found</h3>
+                    <p className="text-gray-600">You don't have any orders to track at the moment.</p>
+                </div>
             </div>
         );
     }
 
-    return (
-        <div className={`bg-white rounded-lg shadow-md overflow-hidden ${className}`}>
-            <div className="p-4 bg-[#f8f9fa] border-b">
-                <h3 className="text-xl font-bold text-[#2c3e50]">Select Order to Track</h3>
-                <p className="text-gray-600 text-sm mt-1">Choose an order to view delivery details</p>
-            </div>
+    const formatDate = (date: Date) => {
+        if (!date) return 'N/A';
 
-            <div className="max-h-96 overflow-y-auto">
+        // Handle both Date objects and string dates
+        const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+        if (isNaN(dateObj.getTime())) return 'Invalid Date';
+
+        return dateObj.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+            case 'pending':
+                return 'text-yellow-600 bg-yellow-100 border-yellow-200';
+            case 'confirmed':
+                return 'text-blue-600 bg-blue-100 border-blue-200';
+            case 'preparing':
+                return 'text-orange-600 bg-orange-100 border-orange-200';
+            case 'ready_for_pickup':
+                return 'text-purple-600 bg-purple-100 border-purple-200';
+            case 'out_for_delivery':
+                return 'text-indigo-600 bg-indigo-100 border-indigo-200';
+            case 'delivered':
+                return 'text-green-600 bg-green-100 border-green-200';
+            case 'cancelled':
+                return 'text-red-600 bg-red-100 border-red-200';
+            default:
+                return 'text-gray-600 bg-gray-100 border-gray-200';
+        }
+    };
+
+    const getItemsPreview = (order: Order) => {
+        if (!order.items || order.items.length === 0) {
+            return 'No items';
+        }
+
+        const firstItem = order.items[0];
+        const remainingCount = order.items.length - 1;
+
+        let preview = firstItem.name || 'Unknown Item';
+        if (remainingCount > 0) {
+            preview += ` +${remainingCount} more`;
+        }
+
+        return preview;
+    };
+
+    return (
+        <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+            <h3 className="text-xl font-bold text-gray-700 mb-6">Select Order to Track</h3>
+
+            <div className="space-y-4">
                 {orders.map((order) => (
-                    <div
+                    <button
                         key={order.id}
-                        onClick={() => onOrderSelect(order.id)}
-                        className={`
-              p-4 border-b border-gray-100 cursor-pointer transition-all duration-200 hover:bg-gray-50
-              ${selectedOrderId === order.id ? 'bg-blue-50 border-l-4 border-l-[#007bff]' : ''}
-            `}
+                        onClick={() => onOrderSelect(order)}
+                        className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-secondary hover:shadow-md transition-all duration-200"
                     >
-                        <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-3">
-                                <div className="text-lg font-semibold text-[#2c3e50]">
-                                    Order #{order.id}
-                                </div>
-                                <span className={`
-                  px-3 py-1 rounded-full text-xs font-medium border
-                  ${getStatusColor(order.status)}
-                `}>
-                                    {getStatusDisplay(order.status)}
+                        <div className="flex justify-between items-start mb-2">
+                            <h4 className="text-lg font-semibold text-gray-700">
+                                Order #{order.id}
+                            </h4>
+                            <span className={`px-3 py-1 rounded-full text-sm font-semibold border ${getStatusColor(order.status || 'pending')}`}>
+                                {(order.status || 'pending').replace('_', ' ').toUpperCase()}
+                            </span>
+                        </div>
+
+                        <div className="space-y-1">
+                            <p className="text-gray-600">
+                                {getItemsPreview(order)}
+                            </p>
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-gray-500">
+                                    {formatDate(order.createdAt)}
+                                </span>
+                                <span className="font-semibold text-secondary">
+                                    ${(order.totalAmount || 0).toFixed(2)}
                                 </span>
                             </div>
-                            <div className="text-lg font-bold text-[#ff6600]">
-                                {formatPrice(order.totalAmount)}
-                            </div>
                         </div>
-
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span className="text-gray-500">Ordered:</span>
-                                <div className="font-medium">
-                                    {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                        hour12: true
-                                    })}
-                                </div>
-                            </div>
-
-                            {order.estimatedDeliveryTime && (
-                                <div>
-                                    <span className="text-gray-500">Est. Delivery:</span>
-                                    <div className="font-medium text-[#007bff]">
-                                        {new Date(order.estimatedDeliveryTime).toLocaleTimeString('en-US', {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mt-3">
-                            <div className="text-gray-500 text-sm mb-1">Items:</div>
-                            <div className="text-sm">
-                                {order.items.slice(0, 2).map((item: OrderItem, index: number) => (
-                                    <span key={item.id}>
-                                        {item.name}
-                                        {item.quantity && item.quantity > 1 && ` (${item.quantity})`}
-                                        {index < Math.min(order.items.length, 2) - 1 && ', '}
-                                    </span>
-                                ))}
-                                {order.items.length > 2 && (
-                                    <span className="text-gray-500">
-                                        {' '}and {order.items.length - 2} more item{order.items.length - 2 > 1 ? 's' : ''}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-
-                        {order.deliveryLocation?.address && (
-                            <div className="mt-3">
-                                <div className="text-gray-500 text-sm mb-1">Delivery to:</div>
-                                <div className="text-sm text-gray-700">
-                                    📍 {order.deliveryLocation.address}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    </button>
                 ))}
             </div>
         </div>

@@ -44,16 +44,29 @@ export interface DeliveryStep {
   icon: string;
 }
 
+export interface DeliveryUpdate {
+  timestamp: Date;
+  status: string;
+  location: string;
+}
+
 export interface DeliveryTracking {
   orderId: number;
-  currentStep: string;
-  steps: DeliveryStep[];
-  estimatedDeliveryTime: string;
-  deliveryLocation: DeliveryLocation;
-  driverInfo?: {
+  status: string;
+  estimatedDeliveryTime: Date;
+  currentLocation: {
+    lat: number;
+    lng: number;
+  };
+  destination: {
+    lat: number;
+    lng: number;
+  };
+  managerInfo: {
     name: string;
     phone: string;
-    vehicle: string;
-    currentLocation: DeliveryLocation;
+    department: string;
+    role: string;
   };
+  updates: DeliveryUpdate[];
 }

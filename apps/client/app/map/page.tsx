@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { Order, DeliveryTracking } from '../../types/order';
+import { Order, DeliveryTracking, DeliveryStep } from '../../types/order';
 import { orderService } from '../../services/orderService';
 
 // Import components dynamically to avoid SSR issues
@@ -38,143 +38,218 @@ const DeliverySteps = dynamic(
     { ssr: false }
 );
 
-const DriverInfo = dynamic(
-    () => import('../../components/delivery/DriverInfo').then(mod => ({ default: mod.DriverInfo })),
+const ManagerInfo = dynamic(
+    () => import('../../components/delivery/ManagerInfo').then(mod => ({ default: mod.ManagerInfo })),
     { ssr: false }
 );
 
-type MapMode = 'location-select' | 'delivery-tracking';
+const LocationSelector = dynamic(
+    () => import('../../components/delivery/LocationSelector').then(mod => ({ default: mod.LocationSelector })),
+    { ssr: false }
+);
+
+interface Location {
+    lat: number;
+    lng: number;
+    address: string;
+    name: string;
+}
 
 export default function MapPage() {
     const router = useRouter();
-    const [mode, setMode] = useState<MapMode>('location-select');
-    const [selectedLocation, setSelectedLocation] = useState<{ lat: number, lng: number } | null>(null);
-
-    // Delivery tracking state
+    const [mode, setMode] = useState<'location' | 'tracking'>('location');
+    const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
-    const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [deliveryTracking, setDeliveryTracking] = useState<DeliveryTracking | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [routeLocations, setRouteLocations] = useState<{
+        start: Location;
+        arrival: Location;
+    } | null>(null);
 
-    // Check URL parameters to determine initial mode
+    // Load orders on component mount
     useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const trackingMode = urlParams.get('mode');
-        const orderId = urlParams.get('orderId');
-
-        if (trackingMode === 'tracking' || orderId) {
-            setMode('delivery-tracking');
-            if (orderId) {
-                setSelectedOrderId(parseInt(orderId));
-            }
-        }
-
         loadOrders();
     }, []);
 
-    // Load user orders
     const loadOrders = async () => {
         try {
             setLoading(true);
-            const userOrders = await orderService.getUserOrders();
-            setOrders(userOrders);
+            setError(null);
 
-            // Auto-select the first active order if none selected
-            if (!selectedOrderId && userOrders.length > 0) {
-                const activeOrder = userOrders.find(order =>
-                    ['OUT_FOR_DELIVERY', 'PREPARING', 'CONFIRMED'].includes(order.status)
-                ) || userOrders[0];
+            console.log('Loading orders...');
+            const ordersData = await orderService.getOrders();
+            console.log('Orders loaded:', ordersData);
 
-                if (activeOrder) {
-                    setSelectedOrderId(activeOrder.id);
+            // Validate that orders have proper structure
+            const validOrders = ordersData.filter(order => {
+                const isValid = order &&
+                    typeof order.id === 'number' &&
+                    Array.isArray(order.items) &&
+                    typeof order.totalAmount === 'number' &&
+                    typeof order.status === 'string';
+
+                if (!isValid) {
+                    console.warn('Invalid order found:', order);
                 }
-            }
+
+                return isValid;
+            });
+
+            console.log('Valid orders:', validOrders);
+            setOrders(validOrders);
+
         } catch (err) {
-            setError('Failed to load orders');
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load orders';
+            setError(errorMessage);
             console.error('Error loading orders:', err);
         } finally {
             setLoading(false);
         }
     };
 
-    // Load selected order details and tracking info
-    useEffect(() => {
-        if (selectedOrderId && mode === 'delivery-tracking') {
-            loadOrderDetails(selectedOrderId);
-        }
-    }, [selectedOrderId, mode]);
+    // Helper function to convert delivery tracking to steps format
+    const convertToDeliverySteps = (tracking: DeliveryTracking): DeliveryStep[] => {
+        const stepDefinitions = [
+            {
+                id: 'order-received',
+                name: 'Order Received',
+                icon: '📋',
+                statuses: ['confirmed', 'preparing', 'out_for_delivery', 'delivered']
+            },
+            {
+                id: 'preparing',
+                name: 'Preparing Food',
+                icon: '👨‍🍳',
+                statuses: ['preparing', 'out_for_delivery', 'delivered']
+            },
+            {
+                id: 'out-for-delivery',
+                name: 'Out for Delivery',
+                icon: '🚚',
+                statuses: ['out_for_delivery', 'delivered']
+            },
+            {
+                id: 'delivered',
+                name: 'Delivered',
+                icon: '🎉',
+                statuses: ['delivered']
+            }
+        ];
 
-    const loadOrderDetails = async (orderId: number) => {
+        return stepDefinitions.map((stepDef, index) => {
+            let status: 'completed' | 'current' | 'upcoming' = 'upcoming';
+            let timestamp: string | undefined;
+
+            if (stepDef.statuses.includes(tracking.status)) {
+                if (tracking.status === stepDef.statuses[0] && index === stepDefinitions.findIndex(s => s.statuses[0] === tracking.status)) {
+                    status = 'current';
+                } else if (stepDef.statuses.includes(tracking.status) && 
+                          stepDefinitions.findIndex(s => s.statuses[0] === tracking.status) > index) {
+                    status = 'completed';
+                } else if (stepDef.statuses[0] === tracking.status) {
+                    status = 'current';
+                }
+            }
+
+            // Find corresponding update for timestamp
+            const relatedUpdate = tracking.updates.find(update => 
+                update.status.toLowerCase().includes(stepDef.id.replace('-', ' ')) ||
+                (stepDef.id === 'order-received' && update.status.toLowerCase().includes('received')) ||
+                (stepDef.id === 'preparing' && update.status.toLowerCase().includes('preparing')) ||
+                (stepDef.id === 'out-for-delivery' && update.status.toLowerCase().includes('delivery')) ||
+                (stepDef.id === 'delivered' && update.status.toLowerCase().includes('delivered'))
+            );
+
+            if (relatedUpdate) {
+                timestamp = relatedUpdate.timestamp.toISOString();
+            }
+
+            return {
+                id: stepDef.id,
+                name: stepDef.name,
+                status,
+                timestamp,
+                icon: stepDef.icon
+            };
+        });
+    };
+
+    const handleLocationSelect = (location: { lat: number; lng: number }) => {
+        setSelectedLocation(location);
+    };
+
+    const handleOrderSelect = async (order: Order) => {
         try {
-            const [order, tracking] = await Promise.all([
-                orderService.getOrder(orderId),
-                orderService.getDeliveryTracking(orderId)
-            ]);
+            setLoading(true);
+            setError(null);
+
+            console.log('Selected order:', order);
+
+            // Validate order structure before proceeding
+            if (!order || !Array.isArray(order.items)) {
+                throw new Error('Invalid order structure');
+            }
+
+            const tracking = await orderService.getDeliveryTracking(order.id);
+            console.log('Tracking data:', tracking);
 
             setSelectedOrder(order);
             setDeliveryTracking(tracking);
+            setMode('tracking');
         } catch (err) {
-            setError('Failed to load order details');
-            console.error('Error loading order details:', err);
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load delivery tracking';
+            setError(errorMessage);
+            console.error('Error loading delivery tracking:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleLocationSelect = (lat: number, lng: number) => {
-        setSelectedLocation({ lat, lng });
+    const handleBackToOrders = () => {
+        setSelectedOrder(null);
+        setDeliveryTracking(null);
+        setMode('location');
     };
 
-    const confirmLocation = () => {
-        if (selectedLocation) {
-            // In a real app, you would save this location to your order state
-            router.push('/status');
-        } else {
-            alert("Please select a location first!");
+    const handleLocationChange = (startLocation: Location, arrivalLocation: Location) => {
+        setRouteLocations({
+            start: startLocation,
+            arrival: arrivalLocation
+        });
+
+        // Update the selected location for the basic map
+        setSelectedLocation({
+            lat: startLocation.lat,
+            lng: startLocation.lng
+        });
+    };
+
+    const handleConfirmRoute = () => {
+        if (routeLocations) {
+            // Switch to delivery tracking mode with the selected route
+            setMode('tracking');
+            // You could create a mock order here or integrate with real order creation
         }
     };
 
-    const handleOrderSelect = (orderId: number) => {
-        setSelectedOrderId(orderId);
-        // Update URL to reflect selected order
-        const url = new URL(window.location.href);
-        url.searchParams.set('orderId', orderId.toString());
-        window.history.replaceState({}, '', url.toString());
-    };
-
-    const toggleMode = () => {
-        const newMode = mode === 'location-select' ? 'delivery-tracking' : 'location-select';
-        setMode(newMode);
-
-        // Update URL
-        const url = new URL(window.location.href);
-        if (newMode === 'delivery-tracking') {
-            url.searchParams.set('mode', 'tracking');
-        } else {
-            url.searchParams.delete('mode');
-            url.searchParams.delete('orderId');
-        }
-        window.history.replaceState({}, '', url.toString());
-    };
-
-    // Auto-refresh tracking data every 30 seconds for active deliveries
-    useEffect(() => {
-        if (mode === 'delivery-tracking' && selectedOrderId &&
-            selectedOrder?.status === 'OUT_FOR_DELIVERY') {
-            const interval = setInterval(() => {
-                loadOrderDetails(selectedOrderId);
-            }, 30000);
-
-            return () => clearInterval(interval);
-        }
-    }, [mode, selectedOrderId, selectedOrder?.status]);
-
-    if (loading) {
+    if (error) {
         return (
             <div className="min-h-screen bg-orange-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-secondary mx-auto mb-4"></div>
-                    <p className="text-xl text-gray-700">Loading...</p>
+                    <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+                    <p className="text-gray-600 mb-4">{error}</p>
+                    <button
+                        onClick={() => {
+                            setError(null);
+                            loadOrders();
+                        }}
+                        className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark"
+                    >
+                        Retry
+                    </button>
                 </div>
             </div>
         );
@@ -182,125 +257,154 @@ export default function MapPage() {
 
     return (
         <div className="min-h-screen bg-orange-50">
-            <div className="pt-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header with mode toggle */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="flex justify-center items-center gap-4 mb-6">
-                        <button
-                            onClick={toggleMode}
-                            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${mode === 'location-select'
-                                ? 'bg-secondary text-white shadow-md'
-                                : 'bg-white text-secondary border-2 border-secondary hover:bg-gray-50'
-                                }`}
-                        >
-                            📍 Choose Location
-                        </button>
-                        <button
-                            onClick={toggleMode}
-                            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${mode === 'delivery-tracking'
-                                ? 'bg-secondary text-white shadow-md'
-                                : 'bg-white text-secondary border-2 border-secondary hover:bg-gray-50'
-                                }`}
-                        >
-                            🚚 Track Deliveries
-                        </button>
-                    </div>
-
-                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-primary-dark">
-                        {mode === 'location-select' ? 'Choose Your Delivery Location' : 'Track Your Delivery'}
+                    <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-red-500">
+                        {mode === 'location' ? 'Select Delivery Locations' : 'Track Your Delivery'}
                     </h1>
                     <p className="text-xl text-gray-700 mt-2">
-                        {mode === 'location-select'
-                            ? 'Click anywhere on the map to select your drop-off point.'
-                            : 'Monitor your order progress and delivery status in real-time.'
+                        {mode === 'location'
+                            ? 'Choose your pickup and delivery points'
+                            : 'Monitor your order in real-time'
                         }
                     </p>
                 </div>
 
-                {error && (
-                    <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                        {error}
+                {/* Mode Toggle */}
+                <div className="flex justify-center mb-8">
+                    <div className="bg-white rounded-lg p-1 shadow-md">
+                        <button
+                            onClick={() => setMode('location')}
+                            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${mode === 'location'
+                                    ? 'bg-secondary text-white'
+                                    : 'text-gray-600 hover:text-secondary'
+                                }`}
+                        >
+                            Location Selection
+                        </button>
+                        <button
+                            onClick={() => setMode('tracking')}
+                            className={`px-6 py-2 rounded-lg font-semibold transition-colors ${mode === 'tracking'
+                                    ? 'bg-secondary text-white'
+                                    : 'text-gray-600 hover:text-secondary'
+                                }`}
+                        >
+                            Delivery Tracking
+                        </button>
+                    </div>
+                </div>
+
+                {loading && (
+                    <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Loading...</p>
                     </div>
                 )}
 
-                {mode === 'location-select' ? (
-                    // Location Selection Mode
-                    <>
-                        <div className="w-full h-96 border-4 border-primary rounded-lg overflow-hidden shadow-md mb-8">
-                            <GoogleMap onLocationSelect={handleLocationSelect} />
-                        </div>
-                        <div className="text-center text-xl text-gray-700 mb-6">
-                            Selected Location: <span className="font-bold">
-                                {selectedLocation
-                                    ? `Lat: ${selectedLocation.lat.toFixed(5)}, Lng: ${selectedLocation.lng.toFixed(5)}`
-                                    : 'None'}
-                            </span>
-                        </div>
-                        <div className="flex justify-center">
-                            <button
-                                onClick={confirmLocation}
-                                className="px-8 py-4 bg-secondary hover:bg-secondary-dark text-white text-xl font-bold rounded-lg transform transition-transform hover:scale-105 shadow-md"
-                            >
-                                Confirm Location
-                            </button>
-                        </div>
-                    </>
-                ) : (
-                    // Delivery Tracking Mode
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Left Column - Order Selection and Details */}
-                        <div className="lg:col-span-1 space-y-6">
-                            <OrderSelector
-                                orders={orders}
-                                selectedOrderId={selectedOrderId}
-                                onOrderSelect={handleOrderSelect}
+                {/* Location Selection Mode */}
+                {mode === 'location' && !loading && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* Location Selector */}
+                        <div>
+                            <LocationSelector
+                                onLocationChange={handleLocationChange}
+                                className="mb-6"
                             />
 
-                            {selectedOrder && (
-                                <OrderDetails order={selectedOrder} />
-                            )}
-
-                            {deliveryTracking?.driverInfo && (
-                                <DriverInfo driverInfo={deliveryTracking.driverInfo} />
+                            {routeLocations && (
+                                <div className="text-center">
+                                    <button
+                                        onClick={handleConfirmRoute}
+                                        className="px-8 py-3 bg-secondary hover:bg-secondary-dark text-white font-bold rounded-lg transition-colors"
+                                    >
+                                        Confirm Route & Start Tracking
+                                    </button>
+                                </div>
                             )}
                         </div>
 
-                        {/* Right Column - Map and Delivery Steps */}
-                        <div className="lg:col-span-2 space-y-6">
-                            {selectedOrder?.deliveryLocation ? (
-                                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                                    <div className="p-4 bg-gray-50 border-b">
-                                        <h3 className="text-xl font-bold text-gray-700">Live Delivery Map</h3>
-                                        <p className="text-gray-600 text-sm mt-1">
-                                            Real-time tracking of your order delivery
-                                        </p>
-                                    </div>
-                                    <div className="p-6">
-                                        <DeliveryMap
-                                            deliveryLocation={selectedOrder.deliveryLocation}
-                                            driverLocation={deliveryTracking?.driverInfo?.currentLocation}
-                                            showRoute={!!deliveryTracking?.driverInfo}
-                                            className="h-96"
-                                        />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="bg-white rounded-lg shadow-md p-8 text-center">
-                                    <div className="text-6xl mb-4">🗺️</div>
-                                    <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                                        Select an Order to Track
-                                    </h3>
-                                    <p className="text-gray-600">
-                                        Choose an order from the list to see delivery details and map tracking.
-                                    </p>
-                                </div>
-                            )}
-
-                            {deliveryTracking && (
-                                <DeliverySteps steps={deliveryTracking.steps} />
-                            )}
+                        {/* Map Display */}
+                        <div>
+                            <div className="bg-white rounded-lg shadow-md p-4">
+                                <h3 className="text-lg font-semibold text-gray-700 mb-4">Route Preview</h3>
+                                <GoogleMap
+                                    onLocationSelect={handleLocationSelect}
+                                    selectedLocation={selectedLocation}
+                                    routeLocations={routeLocations}
+                                />
+                            </div>
                         </div>
                     </div>
+                )}
+
+                {/* Delivery Tracking Mode */}
+                {mode === 'tracking' && !loading && (
+                    <>
+                        {!selectedOrder ? (
+                            <div>
+                                <OrderSelector
+                                    orders={orders}
+                                    onOrderSelect={handleOrderSelect}
+                                    className="mb-8"
+                                />
+                            </div>
+                        ) : (
+                            <div>
+                                {/* Back Button */}
+                                <div className="mb-6">
+                                    <button
+                                        onClick={handleBackToOrders}
+                                        className="flex items-center space-x-2 text-secondary hover:text-secondary-dark font-semibold"
+                                    >
+                                        <span>←</span>
+                                        <span>Back to Orders</span>
+                                    </button>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                    {/* Left Column - Order Details and Steps */}
+                                    <div className="space-y-6">
+                                        <OrderDetails order={selectedOrder} />
+                                        {deliveryTracking && (
+                                            <DeliverySteps 
+                                                steps={convertToDeliverySteps(deliveryTracking)}
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Center Column - Map */}
+                                    <div>
+                                        {deliveryTracking && (
+                                            <DeliveryMap
+                                                deliveryLocation={{
+                                                    lat: deliveryTracking.destination.lat,
+                                                    lng: deliveryTracking.destination.lng,
+                                                    address: 'Delivery Location'
+                                                }}
+                                                driverLocation={{
+                                                    lat: deliveryTracking.currentLocation.lat,
+                                                    lng: deliveryTracking.currentLocation.lng,
+                                                    address: 'Current Location'
+                                                }}
+                                                showRoute={true}
+                                                className="h-96"
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Right Column - Manager Info */}
+                                    <div>
+                                        {deliveryTracking?.managerInfo && (
+                                            <ManagerInfo
+                                                managerInfo={deliveryTracking.managerInfo}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

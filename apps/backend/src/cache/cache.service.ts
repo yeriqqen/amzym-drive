@@ -7,7 +7,8 @@ export class CacheService {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   async get<T>(key: string): Promise<T | undefined> {
-    return await this.cacheManager.get<T>(key);
+    const value = await this.cacheManager.get<T>(key);
+    return value ?? undefined;
   }
 
   async set(key: string, value: any, ttl?: number): Promise<void> {
@@ -19,7 +20,7 @@ export class CacheService {
   }
 
   async reset(): Promise<void> {
-    await this.cacheManager.reset();
+    await this.cacheManager.clear();
   }
 
   // Helper methods for common cache patterns
