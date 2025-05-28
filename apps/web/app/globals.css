@@ -2,41 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Additional custom styles */
-@layer base {
-  body {
-    @apply bg-[#fff8f0] font-sans;
-  }
-
-  h1 {
-    @apply text-4xl font-bold text-[#2c3e50] text-center shadow-sm;
-  }
-
-  h1.gradient {
-    @apply bg-gradient-to-r from-[#ff9900] to-[#ff3300] bg-clip-text text-transparent;
-  }
-
-  p {
-    @apply text-xl text-[#2c3e50] text-center;
-  }
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
 }
 
-@layer components {
-  .input-field {
-    @apply w-full p-3 border-[3px] border-[#ff6600] rounded-lg bg-[#fff8f0] text-[#333] placeholder-[#901] focus:border-[#ff3300] focus:outline-none focus:ring-2 focus:ring-[#ff6600];
-  }
-
-  .btn-primary {
-    @apply px-5 py-3 bg-[#007bff] hover:bg-[#0056b3] text-white font-bold rounded-lg transform transition-transform hover:scale-105 uppercase shadow-md;
-  }
-
-  .card {
-    @apply bg-white p-6 rounded-lg border-[3px] border-[#ff6600] shadow-md;
-  }
-}
-
-/* Leaflet specific styles */
-.leaflet-container {
-  height: 100%;
-  width: 100%;
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
 }
