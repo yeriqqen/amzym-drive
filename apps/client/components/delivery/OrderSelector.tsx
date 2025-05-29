@@ -26,7 +26,7 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
         );
     }
 
-    const formatDate = (date: Date) => {
+    const formatDate = (date: Date | string) => {
         if (!date) return 'N/A';
 
         // Handle both Date objects and string dates

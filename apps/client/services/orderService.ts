@@ -26,7 +26,7 @@ const mockOrders: Order[] = [
       },
     ],
     totalAmount: 44000,
-    status: 'confirmed',
+    status: 'CONFIRMED',
     createdAt: new Date('2024-01-15T10:30:00'),
     updatedAt: new Date('2024-01-15T10:35:00'),
   },
@@ -45,7 +45,7 @@ const mockOrders: Order[] = [
       },
     ],
     totalAmount: 9000,
-    status: 'preparing',
+    status: 'PREPARING',
     createdAt: new Date('2024-01-15T11:00:00'),
     updatedAt: new Date('2024-01-15T11:05:00'),
   },
@@ -64,7 +64,7 @@ const mockOrders: Order[] = [
       },
     ],
     totalAmount: 22000,
-    status: 'out_for_delivery',
+    status: 'OUT_FOR_DELIVERY',
     createdAt: new Date('2024-01-15T09:15:00'),
     updatedAt: new Date('2024-01-15T11:45:00'),
   },
@@ -83,7 +83,7 @@ const mockOrders: Order[] = [
       },
     ],
     totalAmount: 16000,
-    status: 'delivered',
+    status: 'DELIVERED',
     createdAt: new Date('2024-01-14T18:30:00'),
     updatedAt: new Date('2024-01-14T19:15:00'),
   },
@@ -92,7 +92,7 @@ const mockOrders: Order[] = [
 const mockDeliveryTracking: Record<number, DeliveryTracking> = {
   1: {
     orderId: 1,
-    status: 'confirmed',
+    status: 'CONFIRMED',
     estimatedDeliveryTime: new Date(Date.now() + 45 * 60 * 1000), // 45 minutes from now
     currentLocation: {
       lat: 35.228950619029085,
@@ -123,7 +123,7 @@ const mockDeliveryTracking: Record<number, DeliveryTracking> = {
   },
   2: {
     orderId: 2,
-    status: 'preparing',
+    status: 'PREPARING',
     estimatedDeliveryTime: new Date(Date.now() + 35 * 60 * 1000), // 35 minutes from now
     currentLocation: {
       lat: 35.228950619029085,
@@ -154,7 +154,7 @@ const mockDeliveryTracking: Record<number, DeliveryTracking> = {
   },
   3: {
     orderId: 3,
-    status: 'out_for_delivery',
+    status: 'OUT_FOR_DELIVERY',
     estimatedDeliveryTime: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes from now
     currentLocation: {
       lat: 35.229,
@@ -190,7 +190,7 @@ const mockDeliveryTracking: Record<number, DeliveryTracking> = {
   },
   4: {
     orderId: 4,
-    status: 'delivered',
+    status: 'DELIVERED',
     estimatedDeliveryTime: new Date('2024-01-14T19:15:00'),
     currentLocation: {
       lat: 35.22858702880908,
