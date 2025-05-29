@@ -42,6 +42,13 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
         });
     };
 
+    const formatPrice = (price: number) => {
+        return new Intl.NumberFormat('ko-KR', {
+            style: 'currency',
+            currency: 'KRW'
+        }).format(price);
+    };
+
     const getStatusColor = (status: string) => {
         switch (status?.toLowerCase()) {
             case 'pending':
@@ -108,7 +115,7 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
                                     {formatDate(order.createdAt)}
                                 </span>
                                 <span className="font-semibold text-secondary">
-                                    ${(order.totalAmount || 0).toFixed(2)}
+                                    {formatPrice(order.totalAmount || 0)}
                                 </span>
                             </div>
                         </div>

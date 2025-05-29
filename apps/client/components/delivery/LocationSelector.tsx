@@ -17,47 +17,72 @@ const predefinedLocations = {
         {
             lat: 35.228950619029085,
             lng: 126.8427269951037,
-            address: "127 Yongbong-ro, Buk-gu, Gwangju",
-            name: "Main Restaurant Hub"
+            address: "Building C9",
+            name: "Dasan Building"
         },
-        {
-            lat: 35.2295,
-            lng: 126.8435,
-            address: "Downtown Food Court",
-            name: "Downtown Branch"
-        },
-        {
-            lat: 35.2280,
-            lng: 126.8420,
-            address: "University Area",
-            name: "University Branch"
-        }
-    ],
-    arrivalPoints: [
         {
             lat: 35.22858702880908,
             lng: 126.83922370972543,
-            address: "98 Jebong-ro, Dong-gu, Gwangju",
-            name: "Customer Location A"
+            address: "Building W6",
+            name: "Student Union Building 1"
         },
         {
             lat: 35.2290,
-            lng: 126.8385,
-            address: "Business District",
-            name: "Office Complex"
+            lng: 126.8435,
+            address: "Building E11",
+            name: "Undergraduate Dorm"
         },
         {
-            lat: 35.2275,
-            lng: 126.8400,
-            address: "Residential Area",
-            name: "Apartment Complex"
+            lat: 35.2280,
+            lng: 126.8450,
+            address: "Building W4 Main Gate",
+            name: "Graduate Dorm"
+        },
+        {
+            lat: 35.2312,
+            lng: 126.8432,
+            address: "University Main Library N1",
+            name: "Library Building"
+        }
+
+    ],
+    arrivalPoints: [
+        {
+            lat: 35.228950619029085,
+            lng: 126.8427269951037,
+            address: "Building C9",
+            name: "Dasan Building"
+        },
+        {
+            lat: 35.22858702880908,
+            lng: 126.83922370972543,
+            address: "Building W6",
+            name: "Student Union Building 1"
+        },
+        {
+            lat: 35.2290,
+            lng: 126.8435,
+            address: "Building E11",
+            name: "Undergraduate Dorm"
+        },
+        {
+            lat: 35.2280,
+            lng: 126.8450,
+            address: "Building W4 Main Gate",
+            name: "Graduate Dorm"
+        },
+        {
+            lat: 35.2312,
+            lng: 126.8432,
+            address: "University Main Library N1",
+            name: "Library Building"
         }
     ]
 };
 
-export const LocationSelector: React.FC<LocationSelectorProps> = ({ 
-    onLocationChange, 
-    className = '' 
+export const LocationSelector: React.FC<LocationSelectorProps> = ({
+    onLocationChange,
+    className = ''
 }) => {
     const [selectedStart, setSelectedStart] = useState<Location>(predefinedLocations.startingPoints[0]);
     const [selectedArrival, setSelectedArrival] = useState<Location>(predefinedLocations.arrivalPoints[0]);
@@ -111,24 +136,23 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
     return (
         <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
             <h3 className="text-xl font-bold text-gray-700 mb-6">Select Delivery Route</h3>
-            
+
             {/* Starting Point Selection */}
             <div className="mb-6">
                 <h4 className="text-lg font-semibold text-gray-600 mb-3 flex items-center">
                     <span className="text-green-500 mr-2">🟢</span>
                     Starting Point
                 </h4>
-                
+
                 <div className="space-y-2 mb-3">
                     {predefinedLocations.startingPoints.map((location, index) => (
                         <button
                             key={index}
                             onClick={() => handleStartLocationChange(location)}
-                            className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                                selectedStart.lat === location.lat && selectedStart.lng === location.lng && !isCustomStart
-                                    ? 'border-secondary bg-blue-50 text-secondary'
-                                    : 'border-gray-200 hover:border-gray-300'
-                            }`}
+                            className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedStart.lat === location.lat && selectedStart.lng === location.lng && !isCustomStart
+                                ? 'border-secondary bg-blue-50 text-secondary'
+                                : 'border-gray-200 hover:border-gray-300'
+                                }`}
                         >
                             <div className="font-semibold">{location.name}</div>
                             <div className="text-sm text-gray-600">{location.address}</div>
@@ -142,16 +166,15 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
                 <div className="relative">
                     <button
                         onClick={() => setIsCustomStart(!isCustomStart)}
-                        className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                            isCustomStart
-                                ? 'border-secondary bg-blue-50 text-secondary'
-                                : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full text-left p-3 rounded-lg border transition-colors ${isCustomStart
+                            ? 'border-secondary bg-blue-50 text-secondary'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
                     >
                         <div className="font-semibold">Custom Starting Point</div>
                         <div className="text-sm text-gray-600">Enter your own address</div>
                     </button>
-                    
+
                     {isCustomStart && (
                         <div className="mt-2">
                             <input
@@ -175,17 +198,16 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
                     <span className="text-red-500 mr-2">🔴</span>
                     Arrival Point
                 </h4>
-                
+
                 <div className="space-y-2 mb-3">
                     {predefinedLocations.arrivalPoints.map((location, index) => (
                         <button
                             key={index}
                             onClick={() => handleArrivalLocationChange(location)}
-                            className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                                selectedArrival.lat === location.lat && selectedArrival.lng === location.lng && !isCustomArrival
-                                    ? 'border-secondary bg-blue-50 text-secondary'
-                                    : 'border-gray-200 hover:border-gray-300'
-                            }`}
+                            className={`w-full text-left p-3 rounded-lg border transition-colors ${selectedArrival.lat === location.lat && selectedArrival.lng === location.lng && !isCustomArrival
+                                ? 'border-secondary bg-blue-50 text-secondary'
+                                : 'border-gray-200 hover:border-gray-300'
+                                }`}
                         >
                             <div className="font-semibold">{location.name}</div>
                             <div className="text-sm text-gray-600">{location.address}</div>
@@ -199,16 +221,15 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
                 <div className="relative">
                     <button
                         onClick={() => setIsCustomArrival(!isCustomArrival)}
-                        className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                            isCustomArrival
-                                ? 'border-secondary bg-blue-50 text-secondary'
-                                : 'border-gray-200 hover:border-gray-300'
-                        }`}
+                        className={`w-full text-left p-3 rounded-lg border transition-colors ${isCustomArrival
+                            ? 'border-secondary bg-blue-50 text-secondary'
+                            : 'border-gray-200 hover:border-gray-300'
+                            }`}
                     >
                         <div className="font-semibold">Custom Destination</div>
                         <div className="text-sm text-gray-600">Enter delivery address</div>
                     </button>
-                    
+
                     {isCustomArrival && (
                         <div className="mt-2">
                             <input
@@ -248,11 +269,11 @@ export const LocationSelector: React.FC<LocationSelectorProps> = ({
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="mt-3 pt-3 border-t border-gray-200">
                     <div className="text-xs text-gray-500">
                         Distance: ~{(Math.sqrt(
-                            Math.pow(selectedArrival.lat - selectedStart.lat, 2) + 
+                            Math.pow(selectedArrival.lat - selectedStart.lat, 2) +
                             Math.pow(selectedArrival.lng - selectedStart.lng, 2)
                         ) * 111).toFixed(1)} km
                     </div>

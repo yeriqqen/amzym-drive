@@ -146,8 +146,8 @@ export default function MapPage() {
             if (stepDef.statuses.includes(tracking.status)) {
                 if (tracking.status === stepDef.statuses[0] && index === stepDefinitions.findIndex(s => s.statuses[0] === tracking.status)) {
                     status = 'current';
-                } else if (stepDef.statuses.includes(tracking.status) && 
-                          stepDefinitions.findIndex(s => s.statuses[0] === tracking.status) > index) {
+                } else if (stepDef.statuses.includes(tracking.status) &&
+                    stepDefinitions.findIndex(s => s.statuses[0] === tracking.status) > index) {
                     status = 'completed';
                 } else if (stepDef.statuses[0] === tracking.status) {
                     status = 'current';
@@ -155,7 +155,7 @@ export default function MapPage() {
             }
 
             // Find corresponding update for timestamp
-            const relatedUpdate = tracking.updates.find(update => 
+            const relatedUpdate = tracking.updates.find(update =>
                 update.status.toLowerCase().includes(stepDef.id.replace('-', ' ')) ||
                 (stepDef.id === 'order-received' && update.status.toLowerCase().includes('received')) ||
                 (stepDef.id === 'preparing' && update.status.toLowerCase().includes('preparing')) ||
@@ -277,8 +277,8 @@ export default function MapPage() {
                         <button
                             onClick={() => setMode('location')}
                             className={`px-6 py-2 rounded-lg font-semibold transition-colors ${mode === 'location'
-                                    ? 'bg-secondary text-white'
-                                    : 'text-gray-600 hover:text-secondary'
+                                ? 'bg-secondary text-white'
+                                : 'text-gray-600 hover:text-secondary'
                                 }`}
                         >
                             Location Selection
@@ -286,8 +286,8 @@ export default function MapPage() {
                         <button
                             onClick={() => setMode('tracking')}
                             className={`px-6 py-2 rounded-lg font-semibold transition-colors ${mode === 'tracking'
-                                    ? 'bg-secondary text-white'
-                                    : 'text-gray-600 hover:text-secondary'
+                                ? 'bg-secondary text-white'
+                                : 'text-gray-600 hover:text-secondary'
                                 }`}
                         >
                             Delivery Tracking
@@ -367,7 +367,7 @@ export default function MapPage() {
                                     <div className="space-y-6">
                                         <OrderDetails order={selectedOrder} />
                                         {deliveryTracking && (
-                                            <DeliverySteps 
+                                            <DeliverySteps
                                                 steps={convertToDeliverySteps(deliveryTracking)}
                                             />
                                         )}
