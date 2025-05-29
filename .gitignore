@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# monorepo subpackage cache and build artifacts
+/apps/*/node_modules
+/apps/*/package-lock.json
+/apps/*/.turbo
+/apps/*/dist
+/apps/*/.next
