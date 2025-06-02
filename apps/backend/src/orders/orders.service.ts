@@ -11,24 +11,29 @@ export class OrdersService {
   ) {}
 
   async create(userId: number, data: { items: number[]; totalAmount: number }) {
-    const order = await this.prisma.order.create({
-      data: {
-        userId,
-        totalAmount: data.totalAmount,
-        status: 'PENDING',
-        items: {
-          connect: data.items.map((id) => ({ id })),
+    try {
+      const order = await this.prisma.order.create({
+        data: {
+          userId,
+          totalAmount: data.totalAmount,
+          status: 'PENDING',
+          items: {
+            connect: data.items.map((id) => ({ id })),
+          },
         },
-      },
-      include: {
-        items: true,
-      },
-    });
+        include: {
+          items: true,
+        },
+      });
 
-    // Invalidate user's order cache and stats
-    await this.cacheService.invalidateUserCache(userId);
+      // Invalidate user's order cache and stats
+      await this.cacheService.invalidateUserCache(userId);
 
-    return order;
+      return order;
+    } catch (err) {
+      console.error('OrderService.create error:', err, { userId, data });
+      throw err;
+    }
   }
 
   async findAllByUser(userId: number, page = 1, limit = 10) {

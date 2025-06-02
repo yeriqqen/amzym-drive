@@ -6,9 +6,17 @@ import { useCart, formatPrice } from '@/context/cart-context';
 import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageLayout } from '@/components/ui/PageLayout';
+import { useAuth } from '@/context/auth-context';
+import { orderService } from '@/services/orderService';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 const CartPage = () => {
-    const { items, removeItem, updateQuantity, subtotal } = useCart();
+    const { items, removeItem, updateQuantity, subtotal, total, clearCart } = useCart();
+    const { user } = useAuth();
+    const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
 
     if (items.length === 0) {
         return (
@@ -23,6 +31,25 @@ const CartPage = () => {
             </PageLayout>
         );
     }
+
+    const handleCheckout = async () => {
+        setIsSubmitting(true);
+        setError('');
+        try {
+            const token = localStorage.getItem('token');
+            // Send only item IDs to backend
+            await orderService.createOrder({
+                items: items.map(item => item.id),
+                totalAmount: total,
+            }, token || undefined);
+            clearCart();
+            router.push('/map');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Order failed');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <PageLayout>
@@ -97,11 +124,10 @@ const CartPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <Link href="/map">
-                                <Button className="w-full">
-                                    Proceed to Checkout
-                                </Button>
-                            </Link>
+                            <Button className="w-full" onClick={handleCheckout} disabled={isSubmitting}>
+                                {isSubmitting ? 'Placing Order...' : 'Proceed to Checkout'}
+                            </Button>
+                            {error && <div className="text-red-500 text-sm text-center mt-2">{error}</div>}
                         </Card>
                     </div>
                 </div>

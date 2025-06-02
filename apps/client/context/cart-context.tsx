@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useEffect, useState, createContext, useContext, ReactNode } from 'react';
 
 // Helper function to format prices in KRW
 export const formatPrice = (price: number) => {
@@ -33,35 +33,30 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | null>(null);
 
-const useCart = () => {
-    const context = useContext(CartContext);
-    if (!context) {
-        throw new Error('useCart must be used within a CartProvider');
-    }
-    return context;
-};
-
-const ClientCartProvider = ({ children }: { children: ReactNode }) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
     const [items, setItems] = useState<CartItem[]>([]);
+    const [hasHydrated, setHasHydrated] = useState(false);
 
+    // Load cart from localStorage on mount
     useEffect(() => {
-        try {
-            const savedCart = localStorage.getItem('cart');
-            if (savedCart) {
-                setItems(JSON.parse(savedCart));
+        const stored = localStorage.getItem('cart');
+        if (stored) {
+            try {
+                const parsed = JSON.parse(stored);
+                setItems(parsed.items || []);
+            } catch (e) {
+                localStorage.removeItem('cart');
             }
-        } catch (error) {
-            console.error('Failed to load cart:', error);
         }
+        setHasHydrated(true);
     }, []);
 
+    // Save cart to localStorage whenever items change
     useEffect(() => {
-        try {
-            localStorage.setItem('cart', JSON.stringify(items));
-        } catch (error) {
-            console.error('Failed to save cart:', error);
+        if (hasHydrated) {
+            localStorage.setItem('cart', JSON.stringify({ items }));
         }
-    }, [items]);
+    }, [items, hasHydrated]);
 
     const addItem = (item: Omit<CartItem, 'quantity'>) => {
         setItems(prev => {
@@ -113,9 +108,17 @@ const ClientCartProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <CartContext.Provider value={value}>
-            {children}
+            {hasHydrated ? children : null}
         </CartContext.Provider>
     );
 };
 
-export { useCart, ClientCartProvider as CartProvider };
+const useCart = () => {
+    const context = useContext(CartContext);
+    if (!context) {
+        throw new Error('useCart must be used within a CartProvider');
+    }
+    return context;
+};
+
+export { useCart };

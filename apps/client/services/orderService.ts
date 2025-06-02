@@ -257,6 +257,8 @@ const normalizeOrder = (order: any): Order => {
   };
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 export const orderService = {
   // Get all orders for a user
   async getOrders(userId?: number): Promise<Order[]> {
@@ -304,51 +306,25 @@ export const orderService = {
   },
 
   // Create a new order
-  async createOrder(orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
-    await delay(600);
-
+  async createOrder(orderData: any, token?: string) {
+    // orderData: { items, totalAmount, ... }
     try {
-      const newOrder: Order = normalizeOrder({
-        ...orderData,
-        id: mockOrders.length + 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      const response = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(orderData),
       });
-
-      mockOrders.push(newOrder);
-
-      // Create initial delivery tracking
-      mockDeliveryTracking[newOrder.id] = {
-        orderId: newOrder.id,
-        status: 'confirmed',
-        estimatedDeliveryTime: new Date(Date.now() + 45 * 60 * 1000),
-        currentLocation: {
-          lat: 35.228950619029085,
-          lng: 126.8427269951037,
-        },
-        destination: {
-          lat: 35.22858702880908,
-          lng: 126.83922370972543,
-        },
-        managerInfo: {
-          name: 'New Order Manager',
-          phone: '+82-10-9999-0000',
-          department: 'Order Processing',
-          role: 'Order Manager',
-        },
-        updates: [
-          {
-            timestamp: new Date(),
-            status: 'Order received',
-            location: 'Restaurant Kitchen',
-          },
-        ],
-      };
-
-      return newOrder;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create order');
+      }
+      return await response.json();
     } catch (error) {
       console.error('Error in createOrder:', error);
-      throw new Error('Failed to create order');
+      throw error;
     }
   },
 
