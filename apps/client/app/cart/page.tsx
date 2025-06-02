@@ -7,7 +7,6 @@ import Button from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { useAuth } from '@/context/auth-context';
-import { orderService } from '@/services/orderService';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -36,12 +35,6 @@ const CartPage = () => {
         setIsSubmitting(true);
         setError('');
         try {
-            const token = localStorage.getItem('token');
-            // Send only item IDs to backend
-            await orderService.createOrder({
-                items: items.map(item => item.id),
-                totalAmount: total,
-            }, token || undefined);
             clearCart();
             router.push('/map');
         } catch (err) {
