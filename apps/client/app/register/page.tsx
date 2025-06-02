@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
@@ -11,7 +11,7 @@ import Button from '@/components/ui/Button';
 
 export default function RegisterPage() {
     const router = useRouter();
-    const { register } = useAuth();
+    const { register, user, isLoading } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -19,7 +19,13 @@ export default function RegisterPage() {
         confirmPassword: '',
     });
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading && user) {
+            router.replace('/items');
+        }
+    }, [user, isLoading, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -29,11 +35,11 @@ export default function RegisterPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        setIsLoading(true);
+        setIsSubmitting(true);
 
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
-            setIsLoading(false);
+            setIsSubmitting(false);
             return;
         }
 
@@ -43,9 +49,12 @@ export default function RegisterPage() {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Registration failed');
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
+
+    if (isLoading) return null;
+    if (user) return null;
 
     return (
         <PageLayout>
@@ -115,9 +124,9 @@ export default function RegisterPage() {
                         <Button
                             type="submit"
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isSubmitting}
                         >
-                            {isLoading ? 'Creating account...' : 'Create account'}
+                            {isSubmitting ? 'Creating account...' : 'Create account'}
                         </Button>
                     </form>
                 </Card>

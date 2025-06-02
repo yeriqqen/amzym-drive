@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
@@ -11,13 +11,19 @@ import Button from '@/components/ui/Button';
 
 export default function LoginPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, user, isLoading } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
     const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading && user) {
+            router.replace('/items');
+        }
+    }, [user, isLoading, router]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -27,7 +33,7 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
-        setIsLoading(true);
+        setIsSubmitting(true);
 
         try {
             await login(formData.email, formData.password);
@@ -35,9 +41,12 @@ export default function LoginPage() {
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed');
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
+
+    if (isLoading) return null;
+    if (user) return null;
 
     return (
         <PageLayout>
@@ -105,9 +114,9 @@ export default function LoginPage() {
                         <Button
                             type="submit"
                             className="w-full"
-                            disabled={isLoading}
+                            disabled={isSubmitting}
                         >
-                            {isLoading ? 'Signing in...' : 'Sign in'}
+                            {isSubmitting ? 'Signing in...' : 'Sign in'}
                         </Button>
                     </form>
                 </Card>
