@@ -9,41 +9,46 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly jwtService: JwtService,
+    private readonly jwtService: JwtService
   ) {}
 
   async register(registerDto: RegisterDto) {
     const { email, password, name } = registerDto;
 
-    // Check if user exists
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    try {
+      // Check if user exists
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email },
+      });
 
-    if (existingUser) {
-      throw new UnauthorizedException('Email already registered');
+      if (existingUser) {
+        throw new UnauthorizedException('Email already registered');
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const user = await this.prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+        },
+      });
+
+      // Generate JWT token
+      const token = this.jwtService.sign({
+        sub: user.id,
+        email: user.email,
+      });
+
+      const { password: _, ...userWithoutPassword } = user;
+      return { user: userWithoutPassword, token };
+    } catch (err) {
+      console.error('Registration error:', err);
+      throw err;
     }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = await this.prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        name,
-      },
-    });
-
-    // Generate JWT token
-    const token = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-    });
-
-    const { password: _, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, token };
   }
 
   async login(loginDto: LoginDto) {

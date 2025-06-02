@@ -7,13 +7,17 @@ import { PrismaService } from '../../prisma/prisma.service';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    configService: ConfigService,
+    private readonly prisma: PrismaService
   ) {
+    const jwtSecret = configService.get<string>('JWT_SECRET');
+    if (!jwtSecret) {
+      throw new Error('Environment variable JWT_SECRET must be defined');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET')!,
+      secretOrKey: jwtSecret,
     });
   }
 
