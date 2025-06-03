@@ -10,25 +10,52 @@ export class OrdersService {
     private cacheService: CacheService
   ) {}
 
-  async create(userId: number, data: { items: number[]; totalAmount: number }) {
-    const order = await this.prisma.order.create({
-      data: {
-        userId,
-        totalAmount: data.totalAmount,
-        status: 'PENDING',
-        items: {
-          connect: data.items.map((id) => ({ id })),
+  async create(
+    userId: number,
+    data: {
+      items: number[];
+      totalAmount: number;
+      startLat: number;
+      startLng: number;
+      destLat: number;
+      destLng: number;
+    }
+  ) {
+    try {
+      const order = await this.prisma.order.create({
+        data: {
+          userId,
+          totalAmount: data.totalAmount,
+          status: 'PENDING',
+          items: {
+            connect: data.items.map((id) => ({ id })),
+          },
         },
-      },
-      include: {
-        items: true,
-      },
-    });
+        include: {
+          items: true,
+        },
+      });
 
-    // Invalidate user's order cache and stats
-    await this.cacheService.invalidateUserCache(userId);
+      // Create delivery tracking record
+      await this.prisma.deliveryTracking.create({
+        data: {
+          orderId: order.id,
+          startLat: data.startLat,
+          startLng: data.startLng,
+          destLat: data.destLat,
+          destLng: data.destLng,
+          status: 'pending',
+        },
+      });
 
-    return order;
+      // Invalidate user's order cache and stats
+      await this.cacheService.invalidateUserCache(userId);
+
+      return order;
+    } catch (err) {
+      console.error('OrderService.create error:', err, { userId, data });
+      throw err;
+    }
   }
 
   async findAllByUser(userId: number, page = 1, limit = 10) {
@@ -88,5 +115,20 @@ export class OrdersService {
     await this.cacheService.invalidateUserCache(order.userId);
 
     return order;
+  }
+
+  async remove(userId: number, orderId: number) {
+    // Find the order and check ownership
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.userId !== userId) throw new NotFoundException('Order not found');
+
+    // Delete DeliveryTracking if exists
+    await this.prisma.deliveryTracking.deleteMany({ where: { orderId } });
+    // Delete the order
+    await this.prisma.order.delete({ where: { id: orderId } });
+    // Invalidate user's order cache
+    await this.cacheService.invalidateUserCache(userId);
+    return { success: true };
   }
 }

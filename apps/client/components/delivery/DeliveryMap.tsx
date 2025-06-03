@@ -31,23 +31,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({
     useEffect(() => {
         if (!mapRef.current) return;
 
-        const initializeMap = () => {
-            if (!window.google?.maps) {
-                const checkGoogleMapsLoaded = setInterval(() => {
-                    if (window.google?.maps) {
-                        clearInterval(checkGoogleMapsLoaded);
-                        createMap();
-                    }
-                }, 100);
-                return () => clearInterval(checkGoogleMapsLoaded);
-            } else {
-                createMap();
-            }
-        };
-
-        const createMap = () => {
-            if (!mapRef.current) return;
-
+        function createMap() {
             // Clear existing markers
             markersRef.current.forEach(marker => marker.setMap(null));
             markersRef.current = [];
@@ -181,17 +165,22 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({
             }
 
             setIsLoaded(true);
-        };
+        }
 
-        initializeMap();
-
-        return () => {
-            // Cleanup
-            markersRef.current.forEach(marker => marker.setMap(null));
-            if (routeRef.current) {
-                routeRef.current.setMap(null);
-            }
-        };
+        // Wait for Google Maps script to be loaded globally
+        if (window.google && window.google.maps) {
+            createMap();
+            setIsLoaded(true);
+        } else {
+            const interval = setInterval(() => {
+                if (window.google && window.google.maps) {
+                    createMap();
+                    setIsLoaded(true);
+                    clearInterval(interval);
+                }
+            }, 100);
+            return () => clearInterval(interval);
+        }
     }, [deliveryLocation, driverLocation, showRoute]);
 
     return (

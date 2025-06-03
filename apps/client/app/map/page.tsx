@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Order, DeliveryTracking, DeliveryStep } from '../../types/order';
 import { orderService } from '../../services/orderService';
+import { useCart } from '@/context/cart-context';
 
 // Import components dynamically to avoid SSR issues
 const GoogleMap = dynamic(
@@ -57,6 +58,7 @@ interface Location {
 
 export default function MapPage() {
     const router = useRouter();
+    const { items, total, clearCart } = useCart();
     const [mode, setMode] = useState<'location' | 'tracking'>('location');
     const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
@@ -227,11 +229,46 @@ export default function MapPage() {
         });
     };
 
-    const handleConfirmRoute = () => {
+    const handleConfirmRoute = async () => {
         if (routeLocations) {
-            // Switch to delivery tracking mode with the selected route
-            setMode('tracking');
-            // You could create a mock order here or integrate with real order creation
+            try {
+                setLoading(true);
+                setError(null);
+                const token = localStorage.getItem('token');
+                // Create order with items, total, and route coordinates
+                await orderService.createOrder({
+                    items: items.map(item => item.id),
+                    totalAmount: total,
+                    startLat: routeLocations.start.lat,
+                    startLng: routeLocations.start.lng,
+                    destLat: routeLocations.arrival.lat,
+                    destLng: routeLocations.arrival.lng,
+                }, token || undefined);
+                clearCart();
+                await loadOrders();
+                setMode('tracking');
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Order creation failed');
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    // Remove order handler
+    const handleRemoveOrder = async (orderId: number) => {
+        try {
+            setLoading(true);
+            setError(null);
+            const token = localStorage.getItem('token');
+            await orderService.deleteOrder(orderId, token || undefined);
+            setSelectedOrder(null);
+            setDeliveryTracking(null);
+            await loadOrders();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to delete order');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -351,14 +388,21 @@ export default function MapPage() {
                             </div>
                         ) : (
                             <div>
-                                {/* Back Button */}
-                                <div className="mb-6">
+                                {/* Back Button and Remove Order Button */}
+                                <div className="mb-6 flex items-center gap-4">
                                     <button
                                         onClick={handleBackToOrders}
                                         className="flex items-center space-x-2 text-secondary hover:text-secondary-dark font-semibold"
                                     >
                                         <span>←</span>
                                         <span>Back to Orders</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleRemoveOrder(selectedOrder.id)}
+                                        className="flex items-center space-x-2 text-red-600 hover:text-red-800 font-semibold border border-red-200 px-3 py-1 rounded"
+                                    >
+                                        <span>🗑️</span>
+                                        <span>Remove Order</span>
                                     </button>
                                 </div>
 

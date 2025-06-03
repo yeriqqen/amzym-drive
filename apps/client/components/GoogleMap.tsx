@@ -26,11 +26,11 @@ declare global {
     }
 }
 
-export default function GoogleMap({ 
-    onLocationSelect, 
-    selectedLocation, 
+export default function GoogleMap({
+    onLocationSelect,
+    selectedLocation,
     routeLocations,
-    className = '' 
+    className = ''
 }: GoogleMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
@@ -45,25 +45,18 @@ export default function GoogleMap({
     };
 
     useEffect(() => {
-        const loadGoogleMaps = () => {
-            if (window.google) {
-                setIsLoaded(true);
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
-            script.async = true;
-            script.defer = true;
-
-            window.initMap = () => {
-                setIsLoaded(true);
-            };
-
-            document.head.appendChild(script);
-        };
-
-        loadGoogleMaps();
+        // Wait for Google Maps script to be loaded globally
+        if (window.google && window.google.maps && mapRef.current && !mapInstanceRef.current) {
+            setIsLoaded(true);
+        } else {
+            const interval = setInterval(() => {
+                if (window.google && window.google.maps && mapRef.current && !mapInstanceRef.current) {
+                    setIsLoaded(true);
+                    clearInterval(interval);
+                }
+            }, 100);
+            return () => clearInterval(interval);
+        }
     }, []);
 
     useEffect(() => {
@@ -106,7 +99,7 @@ export default function GoogleMap({
         if (routeLocations) {
             // Show route between start and arrival points
             const directionsService = new window.google.maps.DirectionsService();
-            
+
             const request = {
                 origin: { lat: routeLocations.start.lat, lng: routeLocations.start.lng },
                 destination: { lat: routeLocations.arrival.lat, lng: routeLocations.arrival.lng },
@@ -186,11 +179,11 @@ export default function GoogleMap({
             bounds.extend({ lat: routeLocations.start.lat, lng: routeLocations.start.lng });
             bounds.extend({ lat: routeLocations.arrival.lat, lng: routeLocations.arrival.lng });
             mapInstanceRef.current.fitBounds(bounds);
-            
+
         } else if (selectedLocation) {
             // Show single location marker
             directionsRendererRef.current.setDirections({ routes: [] });
-            
+
             const marker = new window.google.maps.Marker({
                 position: selectedLocation,
                 map: mapInstanceRef.current,
@@ -226,7 +219,7 @@ export default function GoogleMap({
     return (
         <div className={`relative ${className}`}>
             <div ref={mapRef} className="h-80 w-full rounded-lg" />
-            
+
             {routeLocations && (
                 <div className="absolute top-4 left-4 bg-white rounded-lg shadow-md p-3 max-w-xs">
                     <h4 className="font-semibold text-gray-700 mb-2">Route Information</h4>

@@ -33,10 +33,10 @@ export default function RootLayout({
           </CartProvider>
         </AuthProvider>
 
-        {/* Google Maps API Script */}
+        {/* Google Maps API Script - only load once, and remove callback param */}
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyD-PLACEHOLDER-KEY'}&libraries=places,geometry`}
-          strategy="lazyOnload"
+          strategy="beforeInteractive"
         />
       </body>
     </html>

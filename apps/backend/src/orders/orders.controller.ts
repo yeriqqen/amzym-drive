@@ -5,6 +5,7 @@ import {
   Body,
   Param,
   Put,
+  Delete,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -20,11 +21,25 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
-  create(
+  async create(
     @Request() req,
-    @Body() createOrderData: { items: number[]; totalAmount: number },
+    @Body()
+    createOrderData: {
+      items: number[];
+      totalAmount: number;
+      startLat: number;
+      startLng: number;
+      destLat: number;
+      destLng: number;
+    }
   ) {
-    return this.ordersService.create(req.user.id, createOrderData);
+    try {
+      console.log('Create order request:', { userId: req.user.id, ...createOrderData });
+      return await this.ordersService.create(req.user.id, createOrderData);
+    } catch (err) {
+      console.error('Order creation error:', err);
+      throw err;
+    }
   }
 
   @Get()
@@ -40,5 +55,11 @@ export class OrdersController {
   @Put(':id/status')
   updateStatus(@Param('id') id: string, @Body('status') status: string) {
     return this.ordersService.updateStatus(+id, status);
+  }
+
+  @Delete(':id')
+  async remove(@Request() req, @Param('id') id: string) {
+    // Optionally, check if the user owns the order or is admin
+    return this.ordersService.remove(req.user.id, +id);
   }
 }

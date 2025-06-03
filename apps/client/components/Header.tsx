@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/context/auth-context';
+import { useRouter } from 'next/navigation';
 
 interface User {
     id: string;
@@ -15,11 +16,12 @@ interface User {
 export default function Header() {
     const { user, logout } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const router = useRouter();
 
     const handleLogout = () => {
         logout();
-        // Close mobile menu if open
         setIsMenuOpen(false);
+        router.push('/');
     };
 
     const toggleMenu = () => {
