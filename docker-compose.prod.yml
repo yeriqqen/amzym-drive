@@ -1,7 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
+    image: postgres:15-alpine
     restart: always
     environment:
       POSTGRES_DB: food_delivery_prod
@@ -12,10 +11,15 @@ services:
     command: postgres -c max_connections=200 -c shared_buffers=256MB -c effective_cache_size=1GB
 
   redis:
+    image: redis:7-alpine
     restart: always
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
 
   backend:
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
+      target: runner
     restart: always
     environment:
       NODE_ENV: production
@@ -40,10 +44,22 @@ services:
           memory: 256M
 
   frontend:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile
+      target: runner
     restart: always
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://yourdomain.com/api}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-https://yourdomain.com}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     deploy:
       resources:
         limits:
@@ -52,10 +68,17 @@ services:
           memory: 128M
 
   nginx:
+    image: nginx:alpine
     restart: always
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
     deploy:
       resources:
         limits:

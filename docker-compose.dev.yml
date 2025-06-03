@@ -1,0 +1,53 @@
+# Development override for docker-compose
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: dev-password
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts with local postgres
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes  # No password for development
+    ports:
+      - "6380:6379"  # Use different port to avoid conflicts with other Redis instances
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./apps/backend/Dockerfile
+      target: installer  # Use installer stage for development with dependencies
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:dev-password@postgres:5432/food_delivery
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_SECRET: dev-jwt-secret-key
+      FRONTEND_URL: http://localhost:3000
+    volumes:
+      - ./apps/backend/src:/app/apps/backend/src
+      - ./apps/backend/prisma:/app/apps/backend/prisma
+      - backend_dev_uploads:/app/uploads
+    working_dir: /app
+    command: ["npm", "run", "dev:backend"]
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile
+      target: installer  # Use installer stage for development
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXTAUTH_SECRET: dev-nextauth-secret
+    volumes:
+      - ./apps/client:/app/apps/client
+      - frontend_node_modules:/app/apps/client/node_modules
+    working_dir: /app
+    command: ["npm", "run", "dev:frontend"]
+
+volumes:
+  backend_dev_uploads:
+  frontend_node_modules:
