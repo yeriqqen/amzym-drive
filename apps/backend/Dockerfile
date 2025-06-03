@@ -1,40 +1,51 @@
-# Backend Dockerfile
+# NestJS Backend Dockerfile with Turborepo pruning
 FROM node:18-alpine AS base
 
-# Install dependencies only when needed
-FROM base AS deps
+# Prune workspace for backend
+FROM base AS pruner
+WORKDIR /app
+RUN npm install -g turbo
+COPY . .
+RUN turbo prune --scope=backend --docker
+
+# Install dependencies
+FROM base AS installer
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY apps/backend/package*.json ./apps/backend/
-RUN npm ci --only=production
+# Copy root package.json and lockfile
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/package-lock.json ./package-lock.json
+
+# Install dependencies
+RUN npm ci --frozen-lockfile
+
+# Copy source code and build
+COPY --from=pruner /app/out/full/ .
+
+# Generate Prisma client from backend schema
+RUN npx prisma generate --schema=./apps/backend/prisma/schema.prisma
 
 # Build the application
-FROM base AS builder
-WORKDIR /app
-COPY . .
-COPY --from=deps /app/node_modules ./node_modules
+RUN npm run build --workspace=backend
 
-# Generate Prisma client and build
-RUN npx prisma generate
-RUN npm run build -w backend
-
-# Production image
-FROM base AS runner
+# Production runtime
+FROM node:18-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Create non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
 
-# Copy built application
-COPY --from=builder /app/apps/backend/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/apps/backend/package.json ./package.json
+# Copy necessary files for production
+COPY --from=installer /app/apps/backend/dist ./dist
+COPY --from=installer /app/apps/backend/package.json ./package.json
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/backend/prisma ./prisma
 
+# Set ownership
+RUN chown -R nestjs:nodejs /app
 USER nestjs
 
 EXPOSE 3001
