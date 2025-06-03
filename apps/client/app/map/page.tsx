@@ -231,12 +231,20 @@ export default function MapPage() {
 
     const handleConfirmRoute = async () => {
         if (routeLocations) {
+            // Debug cart contents before creating order
+            console.log('Cart items at confirm:', items, 'total:', total);
+            // Prevent empty cart orders
+            if (items.length === 0) {
+                setError('Your cart is empty. Please add items before confirming delivery.');
+                return;
+            }
+
             try {
                 setLoading(true);
                 setError(null);
                 const token = localStorage.getItem('token');
                 // Create order with items, total, and route coordinates
-                await orderService.createOrder({
+                const createdResponse = await orderService.createOrder({
                     items: items.map(item => item.id),
                     totalAmount: total,
                     startLat: routeLocations.start.lat,
@@ -244,8 +252,17 @@ export default function MapPage() {
                     destLat: routeLocations.arrival.lat,
                     destLng: routeLocations.arrival.lng,
                 }, token || undefined);
+                // Use the created response directly (includes items)
+                console.log('Created order response:', createdResponse);
                 clearCart();
-                await loadOrders();
+                // Reload orders and find the new one
+                const updatedOrders = await orderService.getOrders();
+                console.log('Updated orders after create:', updatedOrders);
+                setOrders(updatedOrders);
+                const newOrderFromList = updatedOrders.find(o => o.id === createdResponse.id);
+                console.log('New order from list:', newOrderFromList);
+                if (!newOrderFromList) throw new Error('Created order not found in list');
+                setSelectedOrder(newOrderFromList);
                 setMode('tracking');
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Order creation failed');
