@@ -296,14 +296,14 @@ Deploy your food delivery platform to Vercel with these steps:
      "version": 2,
      "builds": [
        {
-         "src": "dist/main.js",
+         "src": "dist/src/main.js",
          "use": "@vercel/node"
        }
      ],
      "routes": [
        {
          "src": "/(.*)",
-         "dest": "dist/main.js"
+         "dest": "dist/src/main.js"
        }
      ],
      "env": {

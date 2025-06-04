@@ -71,7 +71,14 @@ describe('OrdersService', () => {
   describe('create', () => {
     it('should create order and invalidate cache', async () => {
       const userId = 1;
-      const orderData = { items: [1, 2], totalAmount: 29.99 };
+      const orderData = {
+        items: [1, 2],
+        totalAmount: 29.99,
+        startLat: 40.7128,
+        startLng: -74.006,
+        destLat: 40.7589,
+        destLng: -73.9851,
+      };
 
       mockPrismaService.order.create.mockResolvedValue(mockOrder);
 
