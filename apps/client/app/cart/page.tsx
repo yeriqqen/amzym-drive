@@ -35,6 +35,7 @@ const CartPage = () => {
         setIsSubmitting(true);
         setError('');
         try {
+            clearCart();
             router.push('/map');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Order failed');
