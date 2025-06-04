@@ -174,7 +174,8 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
   "clientVersion": "5.22.0",
@@ -192,8 +193,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  password  String\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  role      Role     @default(USER)\n  orders    Order[]\n}\n\nmodel Order {\n  id          Int      @id @default(autoincrement())\n  userId      Int\n  user        User     @relation(fields: [userId], references: [id])\n  items       Item[]\n  totalAmount Float\n  status      String\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nmodel Item {\n  id          Int      @id @default(autoincrement())\n  name        String\n  description String\n  price       Float\n  category    String\n  image       String?\n  orders      Order[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n}\n\nenum Role {\n  USER\n  ADMIN\n  DELIVERY\n}\n",
-  "inlineSchemaHash": "05b38732c7336ba32138fee841d756706c0395a08e4ec986bbdf173319cdd73f",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        Int      @id @default(autoincrement())\n  email     String   @unique\n  password  String\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  role      Role     @default(USER)\n  orders    Order[]\n\n  @@index([email])\n  @@index([role])\n  @@index([createdAt])\n}\n\nmodel Order {\n  id          Int      @id @default(autoincrement())\n  userId      Int\n  user        User     @relation(fields: [userId], references: [id])\n  items       Item[]\n  totalAmount Float\n  status      String\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  @@index([userId])\n  @@index([status])\n  @@index([createdAt])\n  @@index([userId, status])\n}\n\nmodel Item {\n  id          Int      @id @default(autoincrement())\n  name        String\n  description String\n  price       Float\n  category    String\n  image       String?\n  orders      Order[]\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  @@index([category])\n  @@index([price])\n  @@index([name])\n}\n\nenum Role {\n  USER\n  ADMIN\n  DELIVERY\n}\n",
+  "inlineSchemaHash": "fc956eaef70788c52c7c8600af49ff7185e2cfdc3296095e66292787b205f41f",
   "copyEngine": true
 }
 config.dirname = '/'
