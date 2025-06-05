@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,89 +21,75 @@ interface Item {
     rating: number;
 }
 
-const items: Item[] = [
-    {
-        id: 1,
-        name: 'Margherita Pizza',
-        image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=800&q=80',
-        category: 'food',
-        price: 16500,
-        description: 'Fresh mozzarella, tomatoes, and basil on our signature crust',
-        preparation: '20-25 minutes',
-        rating: 4.8
-    },
-    {
-        id: 2,
-        name: 'Gourmet Burger',
-        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80',
-        category: 'food',
-        price: 13000,
-        description: 'Angus beef patty with premium toppings',
-        preparation: '15-20 minutes',
-        rating: 4.7
-    },
-    {
-        id: 3,
-        name: 'Premium Sushi Set',
-        image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=800&q=80',
-        category: 'food',
-        price: 32000,
-        description: 'Assorted fresh sushi rolls (12 pieces)',
-        preparation: '25-30 minutes',
-        rating: 4.9
-    },
-    {
-        id: 4,
-        name: 'Fresh Garden Salad',
-        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80',
-        category: 'food',
-        price: 11500,
-        description: 'Mixed greens with seasonal vegetables',
-        preparation: '10-15 minutes',
-        rating: 4.5
-    },
-    {
-        id: 5,
-        name: 'Spring Water (6-pack)',
-        image: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80',
-        category: 'goods',
-        price: 6500,
-        description: 'Natural spring water in recyclable bottles',
-        rating: 4.6
-    },
-    {
-        id: 6,
-        name: 'Premium Snack Box',
-        image: 'https://images.unsplash.com/photo-1582169296194-d4d644c48081?w=800&q=80',
-        category: 'goods',
-        price: 20500,
-        description: 'Assorted premium snacks and treats',
-        rating: 4.7
-    },
-    {
-        id: 7,
-        name: 'Essential Toiletries Kit',
-        image: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=800&q=80',
-        category: 'goods',
-        price: 25500,
-        description: 'Basic travel-sized toiletries pack',
-        rating: 4.4
-    },
-    {
-        id: 8,
-        name: 'Home Office Bundle',
-        image: 'https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=800&q=80',
-        category: 'goods',
-        price: 38500,
-        description: 'Essential stationery for your home office',
-        rating: 4.8
-    }
-];
-
 const ItemsPage = () => {
     const { items: cartItems, addItem, total: cartTotal } = useCart();
     const [selectedCategory, setSelectedCategory] = useState<'all' | 'food' | 'goods'>('all');
     const [searchQuery, setSearchQuery] = useState('');
+    const [items, setItems] = useState<Item[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    // Fetch items from backend
+    useEffect(() => {
+        const fetchItems = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch('http://localhost:3001/items');
+                if (!response.ok) throw new Error('Failed to fetch items');
+                const itemsData = await response.json();
+
+                // Transform backend data to match frontend interface
+                const transformedItems = itemsData.map((item: any) => ({
+                    id: item.id,
+                    name: item.name,
+                    image: item.image,
+                    category: item.category as 'food' | 'goods',
+                    price: item.price,
+                    description: item.description,
+                    preparation: item.category === 'food' ? '15-25 minutes' : undefined,
+                    rating: 4.5 + (Math.random() * 0.4) // Random rating between 4.5-4.9
+                }));
+
+                setItems(transformedItems);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Failed to load items');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchItems();
+    }, []);
+
+    if (loading) {
+        return (
+            <PageLayout>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                    <span className="ml-4 text-lg">Loading items...</span>
+                </div>
+            </PageLayout>
+        );
+    }
+
+    if (error) {
+        return (
+            <PageLayout>
+                <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-red-600 mb-2">Error Loading Items</h2>
+                        <p className="text-gray-600">{error}</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                </div>
+            </PageLayout>
+        );
+    }
 
     // Helper function to format prices in KRW
     const formatPrice = (price: number) => {
@@ -201,27 +187,25 @@ const ItemsPage = () => {
                                         <p className="text-gray-600 text-sm mb-3">
                                             {item.description}
                                         </p>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center text-sm text-yellow-500">
-                                                {'⭐'.repeat(Math.floor(item.rating))}
-                                                <span className="ml-1 text-gray-600">
-                                                    ({item.rating.toFixed(1)})
-                                                </span>
-                                            </div>
-                                            <Button
-                                                onClick={() => addItem({
-                                                    id: item.id,
-                                                    name: item.name,
-                                                    image: item.image,
-                                                    category: item.category,
-                                                    price: item.price,
-                                                    preparation: item.preparation
-                                                })}
-                                                className="group-hover:bg-[#ff6600] group-hover:text-white"
-                                            >
-                                                Add to Cart
-                                            </Button>
+                                        <div className="flex items-center text-sm text-yellow-500 mb-3">
+                                            {'⭐'.repeat(Math.floor(item.rating))}
+                                            <span className="ml-1 text-gray-600">
+                                                ({item.rating.toFixed(1)})
+                                            </span>
                                         </div>
+                                        <Button
+                                            onClick={() => addItem({
+                                                id: item.id,
+                                                name: item.name,
+                                                image: item.image,
+                                                category: item.category,
+                                                price: item.price,
+                                                preparation: item.preparation
+                                            })}
+                                            className="w-full group-hover:bg-[#ff6600] group-hover:text-white"
+                                        >
+                                            Add to Cart
+                                        </Button>
                                     </div>
                                 </Card>
                             </AnimateIn>

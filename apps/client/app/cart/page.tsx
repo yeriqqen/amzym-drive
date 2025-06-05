@@ -35,7 +35,7 @@ const CartPage = () => {
         setIsSubmitting(true);
         setError('');
         try {
-            clearCart();
+            // Don't clear cart here - it will be cleared after order is created successfully
             router.push('/map');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Order failed');

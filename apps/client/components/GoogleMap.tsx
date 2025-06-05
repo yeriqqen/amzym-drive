@@ -35,6 +35,7 @@ export default function GoogleMap({
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [loadError, setLoadError] = useState<string | null>(null);
     const markersRef = useRef<any[]>([]);
     const directionsRendererRef = useRef<any>(null);
 
@@ -46,45 +47,76 @@ export default function GoogleMap({
 
     useEffect(() => {
         // Wait for Google Maps script to be loaded globally
+        console.log('GoogleMap: Checking for Google Maps API...');
+        console.log('window.google exists:', !!window.google);
+        console.log('window.google.maps exists:', !!(window.google && window.google.maps));
+        console.log('mapRef.current exists:', !!mapRef.current);
+        console.log('mapInstanceRef.current exists:', !!mapInstanceRef.current);
+
         if (window.google && window.google.maps && mapRef.current && !mapInstanceRef.current) {
+            console.log('GoogleMap: API is ready, setting isLoaded to true');
             setIsLoaded(true);
         } else {
+            console.log('GoogleMap: API not ready, starting interval check');
+            let attempts = 0;
+            const maxAttempts = 30; // 30 seconds timeout
+
             const interval = setInterval(() => {
+                attempts++;
+                console.log(`GoogleMap: Interval check ${attempts}/${maxAttempts} - API ready?`, !!(window.google && window.google.maps && mapRef.current && !mapInstanceRef.current));
+
                 if (window.google && window.google.maps && mapRef.current && !mapInstanceRef.current) {
+                    console.log('GoogleMap: API ready in interval, setting isLoaded to true');
                     setIsLoaded(true);
                     clearInterval(interval);
+                } else if (attempts >= maxAttempts) {
+                    console.log('GoogleMap: Timeout reached, setting error');
+                    setLoadError('Failed to load Google Maps API. Please check your API key configuration.');
+                    clearInterval(interval);
                 }
-            }, 100);
-            return () => clearInterval(interval);
+            }, 1000);
+
+            return () => {
+                console.log('GoogleMap: Cleaning up interval');
+                clearInterval(interval);
+            };
         }
     }, []);
 
     useEffect(() => {
         if (isLoaded && mapRef.current && !mapInstanceRef.current) {
-            // Initialize map
-            mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
-                center: selectedLocation || defaultCenter,
-                zoom: 14,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false,
-            });
-
-            // Add click listener for location selection
-            if (onLocationSelect) {
-                mapInstanceRef.current.addListener('click', (event: any) => {
-                    const lat = event.latLng.lat();
-                    const lng = event.latLng.lng();
-                    onLocationSelect({ lat, lng });
+            try {
+                console.log('GoogleMap: Initializing map...');
+                // Initialize map
+                mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+                    center: selectedLocation || defaultCenter,
+                    zoom: 14,
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: false,
                 });
-            }
 
-            // Initialize directions renderer
-            directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
-                draggable: false,
-                suppressMarkers: false,
-            });
-            directionsRendererRef.current.setMap(mapInstanceRef.current);
+                console.log('GoogleMap: Map initialized successfully');
+
+                // Add click listener for location selection
+                if (onLocationSelect) {
+                    mapInstanceRef.current.addListener('click', (event: any) => {
+                        const lat = event.latLng.lat();
+                        const lng = event.latLng.lng();
+                        onLocationSelect({ lat, lng });
+                    });
+                }
+
+                // Initialize directions renderer
+                directionsRendererRef.current = new window.google.maps.DirectionsRenderer({
+                    draggable: false,
+                    suppressMarkers: false,
+                });
+                directionsRendererRef.current.setMap(mapInstanceRef.current);
+                console.log('GoogleMap: Directions renderer initialized');
+            } catch (error) {
+                console.error('GoogleMap: Error initializing map:', error);
+            }
         }
     }, [isLoaded, onLocationSelect]);
 
@@ -205,12 +237,30 @@ export default function GoogleMap({
         }
     }, [isLoaded, selectedLocation, routeLocations]);
 
+    if (loadError) {
+        return (
+            <div className={`h-80 w-full bg-gray-100 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 ${className}`}>
+                <div className="text-center p-6">
+                    <div className="text-red-500 text-4xl mb-4">⚠️</div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">Map Unavailable</h3>
+                    <p className="text-gray-600 text-sm mb-4">{loadError}</p>
+                    <p className="text-xs text-gray-500">
+                        Please add a valid Google Maps API key to use the map feature.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     if (!isLoaded) {
         return (
             <div className={`h-80 w-full bg-gray-200 flex items-center justify-center rounded-lg ${className}`}>
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary mx-auto mb-2"></div>
                     <p className="text-gray-600">Loading map...</p>
+                    <p className="text-xs text-gray-500 mt-2">
+                        {!window.google ? 'Waiting for Google Maps API...' : 'Initializing map...'}
+                    </p>
                 </div>
             </div>
         );

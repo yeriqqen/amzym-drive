@@ -85,16 +85,34 @@ export default function MapPage() {
             const ordersData = await orderService.getOrders();
             console.log('Orders loaded:', ordersData);
 
+            // Debug each order individually
+            ordersData.forEach((order, index) => {
+                console.log(`Order ${index}:`, {
+                    id: order.id,
+                    hasItems: !!order.items,
+                    itemsIsArray: Array.isArray(order.items),
+                    itemsLength: order.items?.length,
+                    items: order.items
+                });
+            });
+
             // Validate that orders have proper structure
             const validOrders = ordersData.filter(order => {
-                const isValid = order &&
-                    typeof order.id === 'number' &&
-                    Array.isArray(order.items) &&
-                    typeof order.totalAmount === 'number' &&
-                    typeof order.status === 'string';
+                const hasId = typeof order.id === 'number';
+                const hasItems = Array.isArray(order.items);
+                const hasTotalAmount = typeof order.totalAmount === 'number';
+                const hasStatus = typeof order.status === 'string';
+
+                const isValid = order && hasId && hasItems && hasTotalAmount && hasStatus;
 
                 if (!isValid) {
-                    console.warn('Invalid order found:', order);
+                    console.warn('Invalid order found:', {
+                        order,
+                        hasId,
+                        hasItems,
+                        hasTotalAmount,
+                        hasStatus
+                    });
                 }
 
                 return isValid;
