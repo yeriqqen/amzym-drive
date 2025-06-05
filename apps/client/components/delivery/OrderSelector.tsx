@@ -71,7 +71,15 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
     };
 
     const getItemsPreview = (order: Order) => {
-        if (!order.items || order.items.length === 0) {
+        console.log('getItemsPreview called with order:', {
+            id: order.id,
+            items: order.items,
+            itemsLength: order.items?.length,
+            isArray: Array.isArray(order.items)
+        });
+
+        if (!order.items || !Array.isArray(order.items) || order.items.length === 0) {
+            console.log('Order has no items or items is not array:', order.id);
             return 'No items';
         }
 
@@ -83,6 +91,7 @@ export const OrderSelector: React.FC<OrderSelectorProps> = ({
             preview += ` +${remainingCount} more`;
         }
 
+        console.log('Generated preview:', preview);
         return preview;
     };
 
