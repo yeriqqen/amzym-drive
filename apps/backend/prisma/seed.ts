@@ -51,7 +51,7 @@ async function main() {
       description: 'Assorted premium snacks and treats',
       price: 20500,
       category: 'goods',
-      image: 'https://images.unsplash.com/photo-1582169296194-d4d644c48081?w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=800&q=80',
     },
     {
       id: 7,

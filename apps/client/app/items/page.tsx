@@ -187,27 +187,25 @@ const ItemsPage = () => {
                                         <p className="text-gray-600 text-sm mb-3">
                                             {item.description}
                                         </p>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center text-sm text-yellow-500">
-                                                {'⭐'.repeat(Math.floor(item.rating))}
-                                                <span className="ml-1 text-gray-600">
-                                                    ({item.rating.toFixed(1)})
-                                                </span>
-                                            </div>
-                                            <Button
-                                                onClick={() => addItem({
-                                                    id: item.id,
-                                                    name: item.name,
-                                                    image: item.image,
-                                                    category: item.category,
-                                                    price: item.price,
-                                                    preparation: item.preparation
-                                                })}
-                                                className="group-hover:bg-[#ff6600] group-hover:text-white"
-                                            >
-                                                Add to Cart
-                                            </Button>
+                                        <div className="flex items-center text-sm text-yellow-500 mb-3">
+                                            {'⭐'.repeat(Math.floor(item.rating))}
+                                            <span className="ml-1 text-gray-600">
+                                                ({item.rating.toFixed(1)})
+                                            </span>
                                         </div>
+                                        <Button
+                                            onClick={() => addItem({
+                                                id: item.id,
+                                                name: item.name,
+                                                image: item.image,
+                                                category: item.category,
+                                                price: item.price,
+                                                preparation: item.preparation
+                                            })}
+                                            className="w-full group-hover:bg-[#ff6600] group-hover:text-white"
+                                        >
+                                            Add to Cart
+                                        </Button>
                                     </div>
                                 </Card>
                             </AnimateIn>
