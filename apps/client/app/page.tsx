@@ -33,7 +33,7 @@ const popularItems = [
     name: 'Premium Snack Box',
     price: 20500,
     rating: 4.7,
-    image: 'https://images.unsplash.com/photo-1582169296194-d4d644c48081?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=800&q=80',
   },
 ];
 

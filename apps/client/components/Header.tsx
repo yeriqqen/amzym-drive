@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import Button from '@/components/ui/Button';
 import { useAuth } from '@/context/auth-context';
 import { useRouter } from 'next/navigation';
@@ -33,7 +32,6 @@ export default function Header() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     <Link href="/" className="flex items-center space-x-2">
-                        <Image src="/globe.svg" alt="Logo" width={32} height={32} className="w-8 h-8" />
                         <span className="text-xl font-bold bg-gradient-to-r from-[#ff6600] to-[#ff3300] bg-clip-text text-transparent">
                             AmzymDrive
                         </span>
