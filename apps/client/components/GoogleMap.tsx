@@ -52,7 +52,7 @@ export default function GoogleMap({
         console.log('window.google.maps exists:', !!(window.google && window.google.maps));
         console.log('mapRef.current exists:', !!mapRef.current);
         console.log('mapInstanceRef.current exists:', !!mapInstanceRef.current);
-        
+
         if (window.google && window.google.maps && mapRef.current && !mapInstanceRef.current) {
             console.log('GoogleMap: API is ready, setting isLoaded to true');
             setIsLoaded(true);
@@ -60,11 +60,11 @@ export default function GoogleMap({
             console.log('GoogleMap: API not ready, starting interval check');
             let attempts = 0;
             const maxAttempts = 30; // 30 seconds timeout
-            
+
             const interval = setInterval(() => {
                 attempts++;
                 console.log(`GoogleMap: Interval check ${attempts}/${maxAttempts} - API ready?`, !!(window.google && window.google.maps && mapRef.current && !mapInstanceRef.current));
-                
+
                 if (window.google && window.google.maps && mapRef.current && !mapInstanceRef.current) {
                     console.log('GoogleMap: API ready in interval, setting isLoaded to true');
                     setIsLoaded(true);
@@ -75,7 +75,7 @@ export default function GoogleMap({
                     clearInterval(interval);
                 }
             }, 1000);
-            
+
             return () => {
                 console.log('GoogleMap: Cleaning up interval');
                 clearInterval(interval);
