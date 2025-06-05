@@ -58,14 +58,13 @@ export default function Home() {
           <div className="text-center space-y-8">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6600] to-[#ff3300]">
-                Fast & Reliable
+                GIST Delivery
               </span>
               <br />
-              <span className="text-[#2c3e50]">Delivery Service</span>
+              <span className="text-[#2c3e50]">Service</span>
             </h1>
             <p className="text-xl md:text-2xl text-gray-600 max-w-2xl mx-auto">
-              Your trusted partner for quick, safe, and efficient delivery of food
-              and goods.
+              Premium delivery service for GIST community. Order food, groceries, and essentials with real-time tracking and reliable service across campus and nearby areas.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
@@ -133,17 +132,16 @@ export default function Home() {
             <Card className="text-center p-8" hover>
               <Image
                 src="/globe.svg"
-                alt="Global Coverage"
+                alt="Campus Coverage"
                 width={64}
                 height={64}
                 className="mx-auto mb-4"
               />
               <h3 className="text-xl font-semibold text-[#2c3e50] mb-2">
-                Global Coverage
+                Campus Coverage
               </h3>
               <p className="text-gray-600">
-                Delivering to multiple locations worldwide with tracking
-                capabilities.
+                Complete coverage across GIST campus including dormitories, academic buildings, and facilities.
               </p>
             </Card>
 
