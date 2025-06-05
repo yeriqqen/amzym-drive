@@ -34,7 +34,13 @@ export const OrderDetails: React.FC<OrderDetailsProps> = ({ order, className = '
 
             {/* Order Items */}
             <div className="space-y-4 mb-6">
-                {order.items.map((item: OrderItem) => (
+                {console.log('OrderDetails rendering items:', {
+                    orderId: order.id,
+                    items: order.items,
+                    itemsLength: order.items?.length,
+                    isArray: Array.isArray(order.items)
+                })}
+                {order.items && Array.isArray(order.items) ? order.items.map((item: OrderItem) => (
                     <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                         {item.image && (
                             <img
@@ -46,17 +52,18 @@ export const OrderDetails: React.FC<OrderDetailsProps> = ({ order, className = '
                         <div className="flex-1">
                             <h4 className="font-semibold text-[#2c3e50]">{item.name}</h4>
                             <p className="text-sm text-gray-600">{item.description}</p>
-                            {item.quantity && item.quantity > 1 && (
-                                <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                            )}
                         </div>
                         <div className="text-right">
                             <div className="font-semibold text-[#2c3e50]">
-                                {formatPrice(item.price * (item.quantity || 1))}
+                                {formatPrice(item.price)}
                             </div>
                         </div>
                     </div>
-                ))}
+                )) : (
+                    <div className="text-center py-8 text-gray-500">
+                        No items found in this order
+                    </div>
+                )}
             </div>
 
             {/* Order Summary */}
