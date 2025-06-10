@@ -4,11 +4,13 @@ services:
     env: node
     region: oregon
     plan: starter
-    buildCommand: npm ci --include=dev && npx prisma generate --schema=./apps/backend/prisma/schema.prisma && npm run build:backend
+    buildCommand: npm ci --include=dev && npx prisma generate --schema=./apps/backend/prisma/schema.prisma && npx prisma migrate deploy --schema=./apps/backend/prisma/schema.prisma && npm run build:backend
     startCommand: cd apps/backend && npm run start:prod
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK
+        value: '1'
       - key: PORT
         value: 10000
       - key: FRONTEND_URL
