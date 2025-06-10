@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "nest start --watch",
-    "build": "tsc",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -31,6 +31,7 @@
     "@nestjs/platform-express": "^10.3.3",
     "@nestjs/swagger": "^7.3.0",
     "@nestjs/throttler": "^6.4.0",
+    "@prisma/client": "^5.10.2",
     "@types/helmet": "^0.0.48",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
@@ -42,6 +43,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "prisma": "^5.10.2",
     "redis": "^5.1.1",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"

@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: food-delivery-backend
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: npm install && npx prisma generate --schema=./apps/backend/prisma/schema.prisma && npm run build:backend
+    startCommand: cd apps/backend && npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
