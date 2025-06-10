@@ -3,7 +3,7 @@ import { Order, DeliveryTracking } from '../types/order';
 // Simulate API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://amzym-drive.onrender.com';
 
 export const orderService = {
   // Get all orders for a user

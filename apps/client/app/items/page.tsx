@@ -34,7 +34,7 @@ const ItemsPage = () => {
         const fetchItems = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/items');
+                const response = await fetch(process.env.NEXT_PUBLIC_API_URL ?? 'https://amzym-drive.onrender.com/items');
                 if (!response.ok) throw new Error('Failed to fetch items');
                 const itemsData = await response.json();
 
