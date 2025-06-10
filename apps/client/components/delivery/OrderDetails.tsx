@@ -7,6 +7,14 @@ interface OrderDetailsProps {
 }
 
 export const OrderDetails: React.FC<OrderDetailsProps> = ({ order, className = '' }) => {
+    // Debug logging for order items
+    console.log('OrderDetails rendering items:', {
+        orderId: order.id,
+        items: order.items,
+        itemsLength: order.items?.length,
+        isArray: Array.isArray(order.items)
+    });
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('ko-KR', {
             style: 'currency',
@@ -34,12 +42,6 @@ export const OrderDetails: React.FC<OrderDetailsProps> = ({ order, className = '
 
             {/* Order Items */}
             <div className="space-y-4 mb-6">
-                {console.log('OrderDetails rendering items:', {
-                    orderId: order.id,
-                    items: order.items,
-                    itemsLength: order.items?.length,
-                    isArray: Array.isArray(order.items)
-                })}
                 {order.items && Array.isArray(order.items) ? order.items.map((item: OrderItem) => (
                     <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
                         {item.image && (
