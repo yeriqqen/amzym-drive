@@ -31,7 +31,7 @@ services:
       FRONTEND_URL: ${FRONTEND_URL:-https://yourdomain.com}
       LOG_LEVEL: warn
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "${process.env.NEXT_PUBLIC_API_URL}/health"]
       interval: 30s
       timeout: 10s
       retries: 3
