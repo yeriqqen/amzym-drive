@@ -47,4 +47,5 @@ next-env.d.ts
 /apps/*/.turbo
 /apps/*/dist
 /apps/*/.next
+/apps/*/*.tsbuildinfo
 .turbo
