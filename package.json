@@ -72,6 +72,7 @@
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1",
     "tailwind-merge": "^3.3.0",
+    "turbo": "latest",
     "zod": "^3.24.4"
   },
   "devDependencies": {
@@ -111,7 +112,6 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "turbo": "latest",
     "typescript": "^5",
     "typescript-eslint": "^7.0.1"
   },
