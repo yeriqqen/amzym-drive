@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface RobotPosition {
   lat: number;
@@ -12,7 +12,7 @@ export default function MapPage() {
   const mapInstanceRef = useRef<any>(null);
   const markerRef = useRef<any>(null);
   const trailRef = useRef<any>(null);
-  const [position, setPosition] = useState<RobotPosition>({ lat: 35.22901, lon: 126.84288 });
+  const [position, setPosition] = useState<RobotPosition>({ lat: 35.22901, lon: 126.85097 }); // Updated to match current API
   const [trail, setTrail] = useState<RobotPosition[]>([]);
   const [isTracking, setIsTracking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -78,10 +78,10 @@ export default function MapPage() {
     }
   }, [position, isTracking]);
 
-  const updatePosition = async () => {
+  const updatePosition = useCallback(async () => {
     try {
       console.log('Fetching GPS data from AWS API...');
-      const response = await fetch('https://2po3umzjt3.execute-api.ap-northeast-2.amazonaws.com/get-gps');
+      const response = await fetch('https://sfqqyjx9f3.execute-api.ap-northeast-2.amazonaws.com/get-gps');
       
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -89,12 +89,21 @@ export default function MapPage() {
       
       const data = await response.json();
       console.log('GPS data received:', data);
+      console.log('Current position state:', position);
+      console.log('New API coordinates:', `${data.lat}, ${data.lon}`);
+      console.log('Previous coordinates:', `${position.lat}, ${position.lon}`);
+      console.log('Position changed?', data.lat !== position.lat || data.lon !== position.lon);
+      console.log('Is tracking?', isTracking);
+      console.log('Timestamp:', new Date().toISOString());
       
       if (data.lat && data.lon) {
-        setPosition({
+        const newPosition = {
           lat: data.lat,
           lon: data.lon
-        });
+        };
+        
+        console.log('Setting new position:', newPosition);
+        setPosition(newPosition);
         setError(null);
         setLastUpdate(new Date());
         setRetryCount(0);
@@ -113,7 +122,7 @@ export default function MapPage() {
         setTimeout(updatePosition, 5000);
       }
     }
-  };
+  }, [retryCount, isTracking]); // Add dependencies for useCallback
 
   const startTracking = () => {
     setIsTracking(true);
@@ -147,7 +156,7 @@ export default function MapPage() {
         clearInterval(interval);
       }
     };
-  }, [isTracking]);
+  }, [isTracking, updatePosition]); // Added updatePosition to dependencies
 
   return (
     <>
