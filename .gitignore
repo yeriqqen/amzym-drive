@@ -49,3 +49,4 @@ next-env.d.ts
 /apps/*/.next
 /apps/*/*.tsbuildinfo
 .turbo
+/app/*/*
