@@ -10,7 +10,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql" // Change to "sqlite" if using SQLite
   url      = env("DATABASE_URL")
 }
 
@@ -21,7 +21,7 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  role      Role     @default(USER)
+  role      Role     @default("USER") // USER, ADMIN, DELIVERY
   orders    Order[]
 
   @@index([email])
@@ -66,3 +66,5 @@ enum Role {
   ADMIN
   DELIVERY
 }
+
+// Removed enum Role - using String instead for SQLite compatibility

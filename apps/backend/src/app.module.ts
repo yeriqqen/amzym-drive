@@ -7,6 +7,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ItemsModule } from './items/items.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { CacheConfigModule } from './cache/cache.module';
+import { LocationModule } from './location/location.module';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 
@@ -38,6 +39,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
     UsersModule,
     OrdersModule,
     ItemsModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
