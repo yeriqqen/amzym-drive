@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 // Enable CORS for Express
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001"],
+  origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
   credentials: true
 }));
 
@@ -16,7 +16,7 @@ app.use(express.json());
 // Socket.IO with CORS configuration
 const io = socketio(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "http://localhost:3001", "http://localhost:3002"],
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -126,6 +126,39 @@ app.get("/location/delivery-tracking/:orderId", (req, res) => {
       },
     ],
   });
+});
+
+// GPS data endpoint - proxy to real AWS API
+app.get("/location/gps-data", async (req, res) => {
+  try {
+    console.log('Fetching GPS data from AWS API...');
+    
+    // Make direct call to AWS API (no CORS issues on server-side)
+    const awsApiUrl = 'https://sfqqyjx9f3.execute-api.ap-northeast-2.amazonaws.com/get-gps';
+    
+    const response = await fetch(awsApiUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    console.log('GPS data received from AWS API:', data);
+    
+    // Return in the format expected by the frontend
+    res.json({
+      latitude: data.lat,
+      longitude: data.lon,
+      timestamp: data.timestamp
+    });
+  } catch (error) {
+    console.error('Error fetching GPS data from AWS API:', error);
+    // Fallback to a fixed location instead of random
+    res.json({
+      latitude: 35.228950619029085,
+      longitude: 126.8427269951037,
+      timestamp: Date.now()
+    });
+  }
 });
 
 const PORT = process.env.PORT || 3001;
