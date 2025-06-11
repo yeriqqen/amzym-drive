@@ -134,6 +134,8 @@ export default function RobotTrackingPage() {
                             className="h-[600px]"
                             enableTrail={true}
                             showRobotInfo={true}
+                            currentPosition={currentPosition}
+                            positions={trail}
                         />
                     </Card>
                 ) : (
@@ -146,6 +148,8 @@ export default function RobotTrackingPage() {
                                     className="h-[500px]"
                                     enableTrail={true}
                                     showRobotInfo={false}
+                                    currentPosition={currentPosition}
+                                    positions={trail}
                                 />
                             </Card>
                         </div>
