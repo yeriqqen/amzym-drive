@@ -1569,10 +1569,17 @@
   dependencies:
     "@types/node" "*"
 
-"@types/leaflet@^1.9.17", "@types/leaflet@^1.9.18":
-  version "1.9.18"
-  resolved "https://registry.npmjs.org/@types/leaflet/-/leaflet-1.9.18.tgz"
-  integrity sha512-ht2vsoPjezor5Pmzi5hdsA7F++v5UGq9OlUduWHmMZiuQGIpJ2WS5+Gg9HaAA79gNh1AIPtCqhzejcIZ3lPzXQ==
+"@types/leaflet.markercluster@^1.5.5":
+  version "1.5.5"
+  resolved "https://registry.npmjs.org/@types/leaflet.markercluster/-/leaflet.markercluster-1.5.5.tgz"
+  integrity sha512-TkWOhSHDM1ANxmLi+uK0PjsVcjIKBr8CLV2WoF16dIdeFmC0Cj5P5axkI3C1Xsi4+ht6EU8+BfEbbqEF9icPrg==
+  dependencies:
+    "@types/leaflet" "*"
+
+"@types/leaflet@*", "@types/leaflet@^1.9.17":
+  version "1.9.17"
+  resolved "https://registry.npmjs.org/@types/leaflet/-/leaflet-1.9.17.tgz"
+  integrity sha512-IJ4K6t7I3Fh5qXbQ1uwL3CFVbCi6haW9+53oLWgdKlLP7EaS21byWFJxxqOx9y8I0AP0actXSJLVMbyvxhkUTA==
   dependencies:
     "@types/geojson" "*"
 
@@ -2458,7 +2465,7 @@ babel-preset-jest@^29.6.3:
     babel-plugin-jest-hoist "^29.6.3"
     babel-preset-current-node-syntax "^1.0.0"
 
-"backend@file:/Users/alielboury/amzym-drive/apps/backend":
+"backend@file:/Users/alielboury/amzym-drive-new/apps/backend":
   version "0.0.1"
   resolved "file:apps/backend"
   dependencies:
@@ -2476,6 +2483,7 @@ babel-preset-jest@^29.6.3:
     "@nestjs/websockets" "^10.4.19"
     "@prisma/client" "^5.10.2"
     "@types/helmet" "^0.0.48"
+    "@types/node-fetch" "^2.6.12"
     "@types/passport-jwt" "^4.0.1"
     "@types/passport-local" "^1.0.38"
     bcrypt "^5.1.1"
@@ -2483,6 +2491,7 @@ babel-preset-jest@^29.6.3:
     class-transformer "^0.5.1"
     class-validator "^0.14.1"
     helmet "^8.1.0"
+    node-fetch "^2.7.0"
     passport "^0.7.0"
     passport-jwt "^4.0.1"
     passport-local "^1.0.0"
@@ -8383,7 +8392,7 @@ wcwidth@^1.0.1:
   dependencies:
     defaults "^1.0.3"
 
-"web@file:/Users/alielboury/amzym-drive/apps/client":
+"web@file:/Users/alielboury/amzym-drive-new/apps/client":
   version "0.1.0"
   resolved "file:apps/client"
   dependencies:
@@ -8396,7 +8405,7 @@ wcwidth@^1.0.1:
     clsx "^2.1.1"
     framer-motion "^12.11.3"
     leaflet "^1.9.4"
-    lucide-react "^0.513.0"
+    leaflet.markercluster "^1.5.3"
     next "14.1.0"
     next-auth "^4.24.11"
     react "^18.2.0"
