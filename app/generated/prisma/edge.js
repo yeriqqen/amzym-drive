@@ -156,7 +156,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/yeriqqen/Documents/website/app/generated/prisma",
+      "value": "/Users/alielboury/amzym-drive/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -170,12 +170,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/yeriqqen/Documents/website/prisma/schema.prisma",
+    "sourceFilePath": "/Users/alielboury/amzym-drive/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "5.22.0",
