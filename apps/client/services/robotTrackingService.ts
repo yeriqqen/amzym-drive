@@ -1,4 +1,5 @@
 import { RobotPosition, RobotInfo } from '../types/robot';
+import { gpsService } from './gpsService';
 
 // Your AWS API Gateway endpoint
 const AWS_API_ENDPOINT = 'https://sfqqyjx9f3.execute-api.ap-northeast-2.amazonaws.com';
@@ -18,21 +19,19 @@ export class RobotTrackingService {
   // Fetch current robot GPS position
   async getCurrentPosition(): Promise<RobotPosition | null> {
     try {
-      const response = await fetch(`${AWS_API_ENDPOINT}/get-gps`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await gpsService.getCurrentPosition();
+      if (!data) {
+        return null;
       }
-      
-      const data = await response.json();
       
       const position: RobotPosition = {
         lat: data.lat,
         lon: data.lon,
         timestamp: new Date().toISOString(),
-        robotId: data.robotId || 'campus-bot-01',
-        speed: data.speed || 0,
-        battery: data.battery || 100,
-        status: data.status || 'active'
+        robotId: 'campus-bot-01',
+        speed: 0, // AWS API doesn't provide speed, set to 0
+        battery: 100, // AWS API doesn't provide battery, set to 100
+        status: 'active'
       };
 
       // Notify all listeners

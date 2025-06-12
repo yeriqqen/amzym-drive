@@ -7,6 +7,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
 import { io, Socket } from 'socket.io-client';
+import { gpsService } from '../services/gpsService';
 
 // Fix for default markers in Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -50,30 +51,24 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
   const [isConnected, setIsConnected] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
 
-  // Function to fetch GPS data from AWS API via our backend
+  // Function to fetch GPS data from AWS API directly
   const fetchGPSFromAPI = async () => {
     try {
-      const backendUrl = apiUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const gpsEndpoint = `${backendUrl}/location/gps-data`;
+      console.log('Fetching GPS data from AWS API...');
       
-      console.log('Fetching GPS data from backend:', gpsEndpoint);
+      const data = await gpsService.getCurrentPosition();
       
-      const response = await fetch(gpsEndpoint);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      
-      console.log('GPS data received from backend:', data);
-      
-      // Backend returns data in format: { latitude: number, longitude: number, timestamp: number }
-      const { latitude, longitude, timestamp } = data;
-      
-      if (latitude && longitude) {
-        const locationData = { latitude, longitude, timestamp };
+      if (data) {
+        console.log('GPS data received from AWS API:', data);
+        
+        const locationData = { 
+          latitude: data.lat, 
+          longitude: data.lon, 
+          timestamp: Date.now() 
+        };
         setCurrentLocation(locationData);
         
-        console.log(`Sending location from backend: ${latitude}, ${longitude} (timestamp: ${timestamp})`);
+        console.log(`Sending location from AWS: ${data.lat}, ${data.lon}`);
         
         if (socketRef.current && socketRef.current.connected) {
           socketRef.current.emit('send-location', locationData);
@@ -81,12 +76,12 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
         
         onLocationUpdate?.(locationData);
       } else {
-        console.error('Invalid GPS data received from backend:', data);
+        console.error('No GPS data received from AWS API');
       }
     } catch (error) {
-      console.error('Error fetching GPS data from backend:', error);
+      console.error('Error fetching GPS data from AWS API:', error);
       
-      // Fallback to browser geolocation if backend fails
+      // Fallback to browser geolocation if AWS API fails
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {

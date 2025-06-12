@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { gpsService } from '../../services/gpsService';
 
 // Import the real-time map component dynamically
 const RealTimeMap = dynamic(
@@ -19,17 +20,26 @@ interface LocationData {
   timestamp?: number;
 }
 
+interface GPSTrackingData {
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+  orderId?: string;
+}
+
 export default function RealTimeTrackingPage() {
   const router = useRouter();
   const [connectedUsers, setConnectedUsers] = useState(0);
   const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
   const [isTracking, setIsTracking] = useState(false);
+  const [gpsData, setGpsData] = useState<GPSTrackingData[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch connected users count
+  // Fetch connected users count from backend (for WebSocket functionality)
   useEffect(() => {
     const fetchConnectedUsers = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amzym-drive.onrender.com';
         const response = await fetch(`${apiUrl}/location/connected-users`);
         if (response.ok) {
           const data = await response.json();
@@ -45,6 +55,37 @@ export default function RealTimeTrackingPage() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // GPS tracking using AWS API
+  useEffect(() => {
+    let cleanup: (() => void) | null = null;
+
+    if (isTracking) {
+      cleanup = gpsService.startTracking(
+        undefined, // No specific orderId for general tracking
+        (data) => {
+          if (data.length > 0) {
+            const latestGPS = data[data.length - 1];
+            const locationData: LocationData = {
+              latitude: latestGPS.latitude,
+              longitude: latestGPS.longitude,
+              timestamp: new Date(latestGPS.timestamp).getTime()
+            };
+            setCurrentLocation(locationData);
+            setGpsData(data);
+            setError(null);
+          }
+        },
+        3000 // Update every 3 seconds
+      );
+    }
+
+    return () => {
+      if (cleanup) {
+        cleanup();
+      }
+    };
+  }, [isTracking]);
 
   const handleLocationUpdate = (location: LocationData) => {
     setCurrentLocation(location);
