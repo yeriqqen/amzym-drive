@@ -38,10 +38,10 @@ export default function MapPage() {
           .bindPopup('🤖 CampusBot<br/>Click Start Tracking for live updates');
 
         // Initialize empty trail
-        trailRef.current = L.polyline([], { 
-          color: 'red', 
-          weight: 3, 
-          opacity: 0.7 
+        trailRef.current = L.polyline([], {
+          color: 'red',
+          weight: 3,
+          opacity: 0.7
         }).addTo(mapInstanceRef.current);
       });
     }
@@ -52,7 +52,7 @@ export default function MapPage() {
     if (mapInstanceRef.current && markerRef.current) {
       markerRef.current.setLatLng([position.lat, position.lon]);
       mapInstanceRef.current.setView([position.lat, position.lon]);
-      
+
       // Update popup with current coordinates
       markerRef.current.setPopupContent(
         `🤖 CampusBot<br/>📍 ${position.lat.toFixed(6)}, ${position.lon.toFixed(6)}<br/>🕐 ${new Date().toLocaleTimeString()}`
@@ -67,13 +67,13 @@ export default function MapPage() {
         const newTrail = [...prevTrail, position];
         // Keep only last 50 positions to avoid too long trail
         const limitedTrail = newTrail.slice(-50);
-        
+
         // Update trail on map
         if (trailRef.current) {
           const trailCoords = limitedTrail.map(pos => [pos.lat, pos.lon]);
           trailRef.current.setLatLngs(trailCoords);
         }
-        
+
         return limitedTrail;
       });
     }
@@ -83,11 +83,11 @@ export default function MapPage() {
     try {
       console.log('Fetching GPS data from AWS API via GPS service...');
       const data = await gpsService.getCurrentPosition();
-      
+
       if (!data) {
         throw new Error('No GPS data received from AWS API');
       }
-      
+
       console.log('GPS data received:', data);
       console.log('Current position state:', position);
       console.log('New API coordinates:', `${data.lat}, ${data.lon}`);
@@ -95,12 +95,12 @@ export default function MapPage() {
       console.log('Position changed?', data.lat !== position.lat || data.lon !== position.lon);
       console.log('Is tracking?', isTracking);
       console.log('Timestamp:', new Date().toISOString());
-      
+
       const newPosition = {
         lat: data.lat,
         lon: data.lon
       };
-      
+
       console.log('Setting new position:', newPosition);
       setPosition(newPosition);
       setError(null);
@@ -111,7 +111,7 @@ export default function MapPage() {
       setError(errorMsg);
       setRetryCount(prev => prev + 1);
       console.error('GPS fetch error:', err);
-      
+
       // Auto-retry up to 3 times
       if (retryCount < 3 && isTracking) {
         console.log(`Retrying in 5 seconds... (attempt ${retryCount + 1}/3)`);
@@ -142,7 +142,7 @@ export default function MapPage() {
   // Update position every 2 seconds when tracking
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (isTracking) {
       interval = setInterval(updatePosition, 2000);
     }
@@ -157,12 +157,12 @@ export default function MapPage() {
   return (
     <>
       {/* Add Leaflet CSS */}
-      <link 
-        rel="stylesheet" 
-        href="https://unpkg.com/leaflet/dist/leaflet.css" 
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
       />
-      
-      <div className="min-h-screen bg-white">
+
+      <div className="min-h-screen bg-white pt-20">
         {/* Header */}
         <div className="bg-gray-800 text-white p-4">
           <h2 className="text-2xl font-bold m-0">📍 CampusBot Live GPS Tracker</h2>
@@ -174,23 +174,21 @@ export default function MapPage() {
             <button
               onClick={startTracking}
               disabled={isTracking}
-              className={`px-6 py-3 rounded-lg font-semibold ${
-                isTracking 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+              className={`px-6 py-3 rounded-lg font-semibold ${isTracking
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-green-500 hover:bg-green-600 text-white'
-              }`}
+                }`}
             >
               {isTracking ? 'Tracking...' : 'Start Tracking'}
             </button>
-            
+
             <button
               onClick={stopTracking}
               disabled={!isTracking}
-              className={`px-6 py-3 rounded-lg font-semibold ${
-                !isTracking 
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+              className={`px-6 py-3 rounded-lg font-semibold ${!isTracking
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-red-500 hover:bg-red-600 text-white'
-              }`}
+                }`}
             >
               Stop Tracking
             </button>
@@ -267,7 +265,7 @@ export default function MapPage() {
           </div>
 
           {/* Map Container */}
-          <div 
+          <div
             ref={mapRef}
             className="w-full border border-gray-300 rounded-lg"
             style={{ height: '90vh', minHeight: '500px' }}
