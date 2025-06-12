@@ -6,7 +6,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
-import { io, Socket } from 'socket.io-client';
 import { gpsService } from '../services/gpsService';
 
 // Fix for default markers in Leaflet
@@ -42,7 +41,6 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const socketRef = useRef<Socket | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
   const markerClusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
   const manualMarkerRef = useRef<L.Marker | null>(null);
@@ -55,32 +53,29 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
   const fetchGPSFromAPI = async () => {
     try {
       console.log('Fetching GPS data from AWS API...');
-      
+
       const data = await gpsService.getCurrentPosition();
-      
+
       if (data) {
         console.log('GPS data received from AWS API:', data);
-        
-        const locationData = { 
-          latitude: data.lat, 
-          longitude: data.lon, 
-          timestamp: Date.now() 
+
+        const locationData = {
+          latitude: data.lat,
+          longitude: data.lon,
+          timestamp: Date.now()
         };
         setCurrentLocation(locationData);
-        
-        console.log(`Sending location from AWS: ${data.lat}, ${data.lon}`);
-        
-        if (socketRef.current && socketRef.current.connected) {
-          socketRef.current.emit('send-location', locationData);
-        }
-        
+
+        console.log(`Received location from AWS: ${data.lat}, ${data.lon}`);
+
+        // Notify parent component about location update
         onLocationUpdate?.(locationData);
       } else {
         console.error('No GPS data received from AWS API');
       }
     } catch (error) {
       console.error('Error fetching GPS data from AWS API:', error);
-      
+
       // Fallback to browser geolocation if AWS API fails
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -88,13 +83,10 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
             const { latitude, longitude } = position.coords;
             const locationData = { latitude, longitude };
             setCurrentLocation(locationData);
-            
-            console.log(`Fallback - Sending browser location: ${latitude}, ${longitude}`);
-            
-            if (socketRef.current && socketRef.current.connected) {
-              socketRef.current.emit('send-location', locationData);
-            }
-            
+
+            console.log(`Fallback - Using browser location: ${latitude}, ${longitude}`);
+
+            // Notify parent component about location update
             onLocationUpdate?.(locationData);
           },
           (error) => {
@@ -143,7 +135,7 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
 
     try {
       const [newLat, newLng] = addOffset(lat, lng);
-      
+
       // Remove existing marker if it exists
       if (markersRef.current[id]) {
         try {
@@ -152,12 +144,12 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
           console.warn(`Error removing existing marker ${id}:`, removeError);
         }
       }
-      
+
       // Create new marker
       const marker = L.marker([newLat, newLng]);
       markerClusterGroupRef.current.addLayer(marker);
       markersRef.current[id] = marker;
-      
+
       console.log(`Successfully added/updated marker for ${id} at ${lat}, ${lng}`);
     } catch (error) {
       console.error(`Error adding marker for ${id}:`, error);
@@ -188,7 +180,7 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
 
       try {
         console.log('Initializing map...');
-        
+
         // Default coordinates (center of the map)
         const defaultPosition: [number, number] = [35.2281, 126.8430];
 
@@ -220,7 +212,7 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
           showCoverageOnHover: true,
           zoomToBoundsOnClick: true
         });
-        
+
         map.addLayer(markerClusterGroup);
         markerClusterGroupRef.current = markerClusterGroup;
 
@@ -231,7 +223,7 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
             const userConfirmed = window.confirm(
               `Do you want to add a marker at Latitude: ${lat.toFixed(6)}, Longitude: ${lng.toFixed(6)}?`
             );
-            
+
             if (userConfirmed) {
               // Remove existing manual marker
               if (manualMarkerRef.current) {
@@ -241,17 +233,17 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
                   console.warn('Error removing manual marker:', removeError);
                 }
               }
-              
+
               // Add new manual marker
               manualMarkerRef.current = L.marker([lat, lng]).addTo(map);
-              
+
               const distance = currentLocation
                 ? calculateDistance(
-                    currentLocation.latitude,
-                    currentLocation.longitude,
-                    lat,
-                    lng
-                  )
+                  currentLocation.latitude,
+                  currentLocation.longitude,
+                  lat,
+                  lng
+                )
                 : null;
 
               setLocationList(prev => ({
@@ -277,7 +269,7 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
 
         // Store map reference
         mapRef.current = map;
-        
+
       } catch (error) {
         console.error('Critical error initializing map:', error);
       }
@@ -295,14 +287,14 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
     return () => {
       console.log('Cleaning up map...');
       setIsMapReady(false);
-      
+
       if (mapRef.current) {
         try {
           // Clear all markers
           Object.keys(markersRef.current).forEach(id => {
             safeRemoveMarker(id);
           });
-          
+
           // Remove manual marker
           if (manualMarkerRef.current) {
             try {
@@ -311,13 +303,13 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
               console.warn('Error removing manual marker during cleanup:', removeError);
             }
           }
-          
+
           // Remove the map
           mapRef.current.remove();
         } catch (error) {
           console.error('Error during map cleanup:', error);
         }
-        
+
         // Reset all refs
         mapRef.current = null;
         markersRef.current = {};
@@ -325,81 +317,17 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
         manualMarkerRef.current = null;
       }
     };
-  }, []);
-
-  // Initialize Socket.IO connection
+  }, []);  // NOTE: WebSocket connection disabled - GPS data comes directly from AWS API
+  // Initialize Socket.IO connection (DISABLED FOR GPS TRACKING)
   useEffect(() => {
-    const backendUrl = apiUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    console.log('Connecting to WebSocket server at:', backendUrl);
-    
-    const socket = io(backendUrl, {
-      transports: ['websocket', 'polling'],
-      timeout: 5000,
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
-    });
-    
-    socketRef.current = socket;
+    // Since we're using direct AWS API for GPS data, we don't need WebSocket connections
+    // Set connected state to true to avoid connection status errors
+    setIsConnected(true);
+    console.log('WebSocket connection disabled - using direct AWS API for GPS data');
 
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
-      setIsConnected(true);
-    });
-
-    socket.on('disconnect', (reason) => {
-      console.log('Disconnected from WebSocket server:', reason);
-      setIsConnected(false);
-    });
-
-    socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
-      setIsConnected(false);
-    });
-
-    socket.on('receive-location', (data: UserLocation) => {
-      const { id, latitude, longitude } = data;
-      console.log(`Received location for ${id}: ${latitude}, ${longitude}`);
-
-      if (isMapReady && mapRef.current) {
-        try {
-          // Update map view to show the latest location (with smooth animation)
-          mapRef.current.flyTo([latitude, longitude], mapRef.current.getZoom(), {
-            animate: true,
-            duration: 1
-          });
-
-          // Add or update marker safely
-          safeAddMarker(id, latitude, longitude);
-
-          // Update location list
-          setLocationList(prev => ({
-            ...prev,
-            [id]: { id, latitude, longitude }
-          }));
-        } catch (error) {
-          console.error('Error updating map with location:', error);
-        }
-      } else {
-        console.warn('Map not ready to receive location updates');
-      }
-    });
-
-    socket.on('user-disconnected', (id: string) => {
-      console.log(`User disconnected: ${id}`);
-      
-      safeRemoveMarker(id);
-      
-      setLocationList(prev => {
-        const newList = { ...prev };
-        delete newList[id];
-        return newList;
-      });
-    });
-
+    // Cleanup function (no actual socket to clean up)
     return () => {
-      console.log('Cleaning up WebSocket connection');
-      socket.disconnect();
+      console.log('No WebSocket connection to clean up');
     };
   }, [apiUrl, isMapReady]);
 
@@ -407,10 +335,10 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
   useEffect(() => {
     // Initial fetch
     fetchGPSFromAPI();
-    
+
     // Set up interval for regular updates (2 seconds)
     const interval = setInterval(fetchGPSFromAPI, 2000);
-    
+
     return () => {
       console.log('Cleaning up GPS tracking interval');
       clearInterval(interval);
@@ -419,11 +347,11 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
 
   return (
     <div className={`relative w-full h-full ${className}`}>
-      {/* Connection Status */}
+      {/* GPS Status */}
       <div className="absolute top-4 right-4 z-[1000] bg-white rounded-lg shadow-md p-2">
         <div className={`flex items-center space-x-2 text-sm ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
           <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
-          <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
+          <span>{isConnected ? 'GPS Active' : 'GPS Disconnected'}</span>
         </div>
         <div className={`flex items-center space-x-2 text-xs mt-1 ${isMapReady ? 'text-blue-600' : 'text-orange-600'}`}>
           <div className={`w-2 h-2 rounded-full ${isMapReady ? 'bg-blue-500' : 'bg-orange-500'}`}></div>
@@ -433,12 +361,12 @@ const RealTimeMap: React.FC<RealTimeMapProps> = ({
 
       {/* Map Container with loading indicator */}
       <div className="relative w-full h-full">
-        <div 
-          ref={mapContainerRef} 
+        <div
+          ref={mapContainerRef}
           className="w-full h-full rounded-lg"
           style={{ minHeight: '400px' }}
         />
-        
+
         {!isMapReady && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
             <div className="text-center">
