@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { gpsService } from '../../services/gpsService';
 
 interface RobotPosition {
   lat: number;
@@ -80,14 +81,13 @@ export default function MapPage() {
 
   const updatePosition = useCallback(async () => {
     try {
-      console.log('Fetching GPS data from AWS API...');
-      const response = await fetch('https://sfqqyjx9f3.execute-api.ap-northeast-2.amazonaws.com/get-gps');
+      console.log('Fetching GPS data from AWS API via GPS service...');
+      const data = await gpsService.getCurrentPosition();
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      if (!data) {
+        throw new Error('No GPS data received from AWS API');
       }
       
-      const data = await response.json();
       console.log('GPS data received:', data);
       console.log('Current position state:', position);
       console.log('New API coordinates:', `${data.lat}, ${data.lon}`);
@@ -96,20 +96,16 @@ export default function MapPage() {
       console.log('Is tracking?', isTracking);
       console.log('Timestamp:', new Date().toISOString());
       
-      if (data.lat && data.lon) {
-        const newPosition = {
-          lat: data.lat,
-          lon: data.lon
-        };
-        
-        console.log('Setting new position:', newPosition);
-        setPosition(newPosition);
-        setError(null);
-        setLastUpdate(new Date());
-        setRetryCount(0);
-      } else {
-        throw new Error('Invalid GPS data format');
-      }
+      const newPosition = {
+        lat: data.lat,
+        lon: data.lon
+      };
+      
+      console.log('Setting new position:', newPosition);
+      setPosition(newPosition);
+      setError(null);
+      setLastUpdate(new Date());
+      setRetryCount(0);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to fetch GPS data';
       setError(errorMsg);
@@ -122,7 +118,7 @@ export default function MapPage() {
         setTimeout(updatePosition, 5000);
       }
     }
-  }, [retryCount, isTracking]); // Add dependencies for useCallback
+  }, [retryCount, isTracking, position]); // Add dependencies for useCallback
 
   const startTracking = () => {
     setIsTracking(true);
