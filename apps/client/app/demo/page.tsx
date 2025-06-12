@@ -109,14 +109,13 @@ export default function DemoPage() {
                                 <div>📄 types/robot.ts - Type definitions</div>
                                 <div>⚙️ services/robotTrackingService.ts - AWS API</div>
                                 <div>🎣 hooks/useRobotTracking.ts - React hook</div>
-                                <div>🗺️ components/RobotTrackingMap.tsx - Map UI</div>
+                                <div>🗺️ components/RealTimeMap.tsx - Map UI</div>
                             </div>
                         </div>
                         <div className="space-y-3">
                             <h3 className="font-semibold text-gray-700">Pages</h3>
                             <div className="text-sm space-y-1 font-mono text-gray-600">
-                                <div>📱 app/robot-tracking/page.tsx - Dashboard</div>
-                                <div>🗺️ app/map/page.tsx - Main map</div>
+                                <div>🗺️ app/map/page.tsx - Main map with tracking</div>
                                 <div>🔄 services/mockRobotService.ts - Fallback</div>
                                 <div>🧭 components/Header.tsx - Navigation</div>
                             </div>
@@ -156,18 +155,12 @@ export default function DemoPage() {
                 {/* Demo Links */}
                 <div className="text-center space-y-6">
                     <h2 className="text-2xl font-bold text-gray-800 mb-8">🚀 Try the Demo</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                        <Link 
-                            href="/robot-tracking"
-                            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl"
-                        >
-                            🤖 Full Robot Dashboard
-                        </Link>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
                         <Link 
                             href="/map"
                             className="bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold py-4 px-8 rounded-xl hover:from-green-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl"
                         >
-                            🗺️ Integrated Map View
+                            🗺️ Live Robot Tracking Map
                         </Link>
                         <Link 
                             href="/items"

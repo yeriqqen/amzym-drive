@@ -51,12 +51,6 @@ export default function Header() {
                         >
                             Map
                         </Link>
-                        <Link
-                            href="/tracking"
-                            className="text-gray-600 hover:text-[#ff6600] transition-colors"
-                        >
-                            Live Tracking
-                        </Link>
                         {user && (
                             <>
                                 <Link
@@ -146,13 +140,6 @@ export default function Header() {
                             onClick={() => setIsMenuOpen(false)}
                         >
                             Map
-                        </Link>
-                        <Link
-                            href="/tracking"
-                            className="block px-4 py-2 text-gray-600 hover:text-[#ff6600] transition-colors"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            Live Tracking
                         </Link>
                         {user && (
                             <>
