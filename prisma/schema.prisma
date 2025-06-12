@@ -21,7 +21,7 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  role      Role     @default("USER") // USER, ADMIN, DELIVERY
+  role      Role     @default(USER) // USER, ADMIN, DELIVERY
   orders    Order[]
 
   @@index([email])
